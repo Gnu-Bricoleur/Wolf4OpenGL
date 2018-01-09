@@ -18,7 +18,7 @@ double deplacementY = 0;
 double deplacementZ = 0;
 float vitesse = 0.1;
 int indexlu = 0;
-
+int largeur, hauteur;
 
 struct coord{
 	double x, y;
@@ -63,7 +63,6 @@ int main(int argc, char *argv[])
     fichier = fopen("map.lvl", "r");
 	if(fichier != NULL)  // si l'ouverture a réussi
         {			
-				int largeur, hauteur;
 				//fscanf(fichier, "%d %d", &largeur, &hauteur);
 				hauteur = 20;
 				largeur = 20;
@@ -162,7 +161,7 @@ void Dessiner()
     Cube(0, 0, 0, 0, 0, 255);
     Cube(1, 1, 1, 125, 125, 0);
 	
-	for (int i = 0; i<200; i++)
+	for (int i = 0; i<largeur*hauteur; i++)
 	{
 		Cube(Murs[i].x, Murs[i].y, 0, 125, 0, 0);
 	}
