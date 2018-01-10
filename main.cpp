@@ -17,7 +17,7 @@ using namespace std;
 GLuint vertexshader;
 GLuint fragmentshader;
 GLuint program;
-
+GLuint programID;
 
 
 double angleZ = 0;
@@ -65,24 +65,25 @@ int main(int argc, char *argv[])
 
     glEnable(GL_DEPTH_TEST);
 
-    Dessiner();
-
     Uint32 last_time = SDL_GetTicks();
     Uint32 current_time,ellapsed_time;
     Uint32 start_time;
 
 	SDL_EnableKeyRepeat(10, 10);
 
-	SDL_WM_GrabInput(SDL_GRAB_ON);
+	//SDL_WM_GrabInput(SDL_GRAB_ON);									// A REMETRRE POUR UTILISER GBD CONFORTABLEMENT §§§§§§§§!!!!!!!!!!!!!!!!!!!!
     SDL_ShowCursor(SDL_DISABLE);
 
 	//mise en place des shaders
+	/*
 	vertexshader = glCreateShader(GL_VERTEX_SHADER);
+	LoadShader(vertexshader, "vertex.glsl");
 	fragmentshader = glCreateShader(GL_FRAGMENT_SHADER);
+	LoadShader(fragmentshader, "fragment.glsl");
 	program = glCreateProgram();
 	
-	LoadShader(vertexshader, "vertex.glsl");
-	LoadShader(fragmentshader, "fragment.glsl");
+	
+	
 	glAttachShader(program, vertexshader);
 	glAttachShader(program, fragmentshader);
 
@@ -105,6 +106,10 @@ int main(int argc, char *argv[])
 			cout << infoLog[i];
 		}
 	}
+	*/
+	glewInit();
+	
+	programID = LoadShaders( "vertex.glsl", "fragment.glsl" );
 	
 	
 	// Chargement niveau
@@ -219,7 +224,7 @@ void Dessiner()
 
     glBegin(GL_QUADS);
     
-    glUseProgram(program); //active l'utilisation du shader (remettre cette fonctiona avec un autre shader pour changer en cours de dessin)
+    glUseProgram(programID); //active l'utilisation du shader (remettre cette fonctiona avec un autre shader pour changer en cours de dessin)
 
     Cube(0, 0, 0, 0, 0, 255);
     Cube(1, 1, 1, 125, 125, 0);
