@@ -63,15 +63,12 @@ int main(int argc, char *argv[])
     fichier = fopen("map.lvl", "r");
 	if(fichier != NULL)  // si l'ouverture a réussi
         {			
-				//fscanf(fichier, "%d %d", &largeur, &hauteur);
-				hauteur = 20;
-				largeur = 20;
+				fscanf(fichier, "%d %d", &largeur, &hauteur);
 				for (int i =0; i < largeur; i++)
 				{
 						for (int j = 0; j < hauteur; j++)
 						{
 							caractereActuel = fgetc(fichier);
-							//caractereActuel = '#';
 							if (caractereActuel == '#')
 							{
 								Murs[indexlu].x = i;
