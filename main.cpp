@@ -1,14 +1,24 @@
 #include <SDL/SDL.h>
-#include <GL/gl.h>
+//#include <GL/gl.h>
+#include <GL/glew.h>
 #include <GL/glu.h>
 //#include <cstdlib>
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
+#include <math.h>
+#include <vector>
+#include "chargeshaders.h"
+
+#define PI 3.1415926535898
 
 using namespace std;
 
-void Dessiner();
+GLuint vertexshader;
+GLuint fragmentshader;
+GLuint program;
+
+
 
 double angleZ = 0;
 double angleX = 0;
@@ -19,6 +29,9 @@ double deplacementZ = 0;
 float vitesse = 0.1;
 int indexlu = 0;
 int largeur, hauteur;
+double positionXini = 0;
+double positionYini = 0;
+double positionX, positionY;
 
 struct coord{
 	double x, y;
@@ -26,7 +39,12 @@ struct coord{
 	
 coord Murs[1000];
 
+
+
 void Cube(int x, int y, int z, int r, int g, int b);
+void Dessiner();
+
+
 
 int main(int argc, char *argv[])
 {
@@ -55,7 +73,40 @@ int main(int argc, char *argv[])
 
 	SDL_EnableKeyRepeat(10, 10);
 
+	SDL_WM_GrabInput(SDL_GRAB_ON);
+    SDL_ShowCursor(SDL_DISABLE);
 
+	//mise en place des shaders
+	vertexshader = glCreateShader(GL_VERTEX_SHADER);
+	fragmentshader = glCreateShader(GL_FRAGMENT_SHADER);
+	program = glCreateProgram();
+	
+	LoadShader(vertexshader, "vertex.glsl");
+	LoadShader(fragmentshader, "fragment.glsl");
+	glAttachShader(program, vertexshader);
+	glAttachShader(program, fragmentshader);
+
+	glLinkProgram(program);
+	GLint isLinked = 0;
+	
+	glGetProgramiv(program, GL_LINK_STATUS, (int *)&isLinked);
+	if (isLinked == GL_FALSE)
+	{
+		cout << "erreur linkage des shadeers :-/"<<endl;
+		
+		// The maxLength includes the NULL character
+		GLint maxLength = 0;
+		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
+		std::vector<GLchar> infoLog(maxLength);
+		glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
+		
+		for(int unsigned i=0;i<infoLog.size();i++)
+		{
+			cout << infoLog[i];
+		}
+	}
+	
+	
 	// Chargement niveau
 	FILE* fichier = NULL;
     int caractereActuel = 0;
@@ -83,6 +134,8 @@ int main(int argc, char *argv[])
         else
                 cout << "Impossible d'ouvrir le fichier !" << endl;
 
+
+
     for (;;)
     {
         start_time = SDL_GetTicks();
@@ -97,22 +150,30 @@ int main(int argc, char *argv[])
                 case SDL_KEYDOWN:
 					switch(event.key.keysym.sym)
 					{
+						case SDLK_z:
 						case SDLK_UP: // Flèche haut
-							deplacementY += vitesse;
-							break;
-						case SDLK_DOWN: // Flèche bas
-							deplacementY -= vitesse;
-							break;
-						case SDLK_RIGHT: // Flèche droite
 							deplacementX += vitesse;
 							break;
-						case SDLK_LEFT: // Flèche gauche
+						case SDLK_s:
+						case SDLK_DOWN: // Flèche bas
 							deplacementX -= vitesse;
 							break;
+						case SDLK_d:
+						case SDLK_RIGHT: // Flèche droite
+							deplacementY -= vitesse;
+							break;
+						case SDLK_q:
+						case SDLK_LEFT: // Flèche gauche
+							deplacementY += vitesse;
+							break;
+						case SDLK_ESCAPE:
+							exit(0);
 					}
 					break;
 				case SDL_MOUSEMOTION:
-					angleZ = event.motion.x/3;
+					angleZ = -(320 - (event.motion.x));
+					angleZ = (angleZ/180)*PI;//conversion degre radian
+					cout<<angleZ<<endl;					
 					break;
             }
         }
@@ -146,14 +207,19 @@ void Dessiner()
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity( );
 
-    gluLookAt(3,4,2,0,0,0,0,0,1);
+	positionX = positionXini + deplacementX;
+	positionY = positionYini + deplacementY;
 
-    glRotated(angleZ,0,0,1);
-    glRotated(angleX,1,0,0);
-    glRotated(angleY,0,1,0);
-    glTranslated(deplacementX, deplacementY, deplacementZ);
+    gluLookAt(positionX,positionY,1,positionX + 1 + sin(angleZ),positionY + cos(angleZ),1,0,0,1);
+
+    //glRotated(angleZ,0,0,1);
+    //glRotated(angleX,1,0,0);
+    //glRotated(angleY,0,1,0);
+    //glTranslated(deplacementX, deplacementY, deplacementZ);
 
     glBegin(GL_QUADS);
+    
+    glUseProgram(program); //active l'utilisation du shader (remettre cette fonctiona avec un autre shader pour changer en cours de dessin)
 
     Cube(0, 0, 0, 0, 0, 255);
     Cube(1, 1, 1, 125, 125, 0);
