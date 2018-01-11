@@ -32,6 +32,7 @@ int largeur, hauteur;
 double positionXini = 0;
 double positionYini = 0;
 double positionX, positionY;
+bool premierefois = true;
 
 //textures
 GLuint texture;
@@ -85,9 +86,8 @@ int main(int argc, char *argv[])
 
 	SDL_EnableKeyRepeat(10, 10);
 
-	//SDL_WM_GrabInput(SDL_GRAB_ON);									// A REMETRRE POUR UTILISER GBD CONFORTABLEMENT §§§§§§§§!!!!!!!!!!!!!!!!!!!!
-    //SDL_ShowCursor(SDL_DISABLE);
-    //SDL_SetRelativeMouseMode(enable);
+	SDL_WM_GrabInput(SDL_GRAB_ON);									// A REMETRRE POUR UTILISER GBD CONFORTABLEMENT §§§§§§§§!!!!!!!!!!!!!!!!!!!!
+    SDL_ShowCursor(SDL_DISABLE);
 	SDL_WarpMouse(320, 240);
     glEnable(GL_TEXTURE_2D);
 
@@ -176,10 +176,19 @@ int main(int argc, char *argv[])
 					break;
 				case SDL_MOUSEMOTION:
 					//angleZ += angleZ -(320 - (event.motion.x));
-					angleZ = event.motion.x;
-					//angleZ = (angleZ/180)*PI;//conversion degre radian
-					angleZ = fmod(angleZ, 360);
-				
+					angleZ += event.motion.x;
+					/*
+					//Supprimer la premiere valeur bizarze
+					if (premierefois == true)
+					{
+							angleZ = 0;
+							premierefois = false;
+					}
+					*/
+					//angleZ = fmod(angleZ, 360);
+					angleZ = (angleZ/180)*PI;//conversion degre radian
+					
+					//cout<<event.motion.xrel<<endl;
 					cout<<angleZ<<endl;					
 					break;
             }
@@ -222,16 +231,24 @@ void Dessiner()
 
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity( );
-	positionX = positionXini + deplacementX;
-	positionY = positionYini + deplacementY;
+    
+    double deplacement =  sqrt(deplacementX*deplacementX + deplacementY*deplacementY);
+    
+	positionX += positionXini + deplacement * sin(angleZ);
+	positionY += positionYini + deplacement * cos(angleZ);
 
-    gluLookAt(positionX,positionY,1,positionX + 0.1 ,positionY,1,0,0,1);
+    gluLookAt(positionX,positionY,1,positionX + 0.1 * sin(angleZ),positionY + 0.1 * cos(angleZ) ,1,0,0,1);
 	
+	//positionXini += deplacementX;
+	deplacementX = 0;
+	//positionYini += deplacementY;
+	deplacementY = 0;
 
-    glRotated(angleZ,0,0,1);
+
+    //glRotated(angleZ,0,0,1);
     //glRotated(angleX,1,0,0);
     //glRotated(angleY,0,1,0);
-    //glTranslated(deplacementX, deplacementY, deplacementZ);
+    //glTranslated(positionX, positionY, 1);
 
     glBegin(GL_QUADS);
     
