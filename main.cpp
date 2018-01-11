@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
 	SDL_EnableKeyRepeat(10, 10);
 
 	SDL_WM_GrabInput(SDL_GRAB_ON);									// A REMETRRE POUR UTILISER GBD CONFORTABLEMENT §§§§§§§§!!!!!!!!!!!!!!!!!!!!
-    SDL_ShowCursor(SDL_DISABLE);
+    //SDL_ShowCursor(SDL_DISABLE);
     //SDL_SetRelativeMouseMode(enable);
 
     glEnable(GL_TEXTURE_2D);
@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
 					break;
 				case SDL_MOUSEMOTION:
 					//angleZ += angleZ -(320 - (event.motion.x));
-					angleZ += event.motion.xrel*10;
+					angleZ += event.motion.xrel/100.0;
 					//angleZ = (angleZ/180)*PI;//conversion degre radian
 					//angleZ = modulo(angleZ);
 				
@@ -223,8 +223,8 @@ void Dessiner()
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity( );
 
-	positionX = positionXini + deplacementX;
-	positionY = positionYini + deplacementY;
+	positionX = positionXini + deplacementX + sin(angleZ);
+	positionY = positionYini + deplacementY + cos(angleZ);
 
     gluLookAt(positionX,positionY,1,positionX + 1 + sin(angleZ),positionY + cos(angleZ),1,0,0,1);
 
