@@ -1,0 +1,6 @@
+Compiling shader : vertex.glsl
+0:5(1): error: syntax error, unexpected NEW_IDENTIFIER, expecting $end
+
+Compiling shader : fragment.glsl
+Linking program
+error: linking with uncompiled shader

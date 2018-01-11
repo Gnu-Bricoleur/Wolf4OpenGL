@@ -9,7 +9,7 @@
 #include <math.h>
 #include <vector>
 #include "chargeshaders.h"
-
+#include "sdlglutils.h" // textures
 #define PI 3.1415926535898
 
 using namespace std;
@@ -33,6 +33,15 @@ double positionXini = 0;
 double positionYini = 0;
 double positionX, positionY;
 
+//textures
+GLuint texture;
+int ind_texture_Mur = 2;
+int ind_texture_Plafond = 1;
+int ind_texture_Sol = 0;
+
+
+
+
 struct coord{
 	double x, y;
 	};
@@ -41,8 +50,11 @@ coord Murs[1000];
 
 
 
-void Cube(int x, int y, int z, int r, int g, int b);
+void Cube(int x, int y, int z, int r, int g, int b, int ind_texture);
+void Chargement_niveau();
+//void Ini_Texture();
 void Dessiner();
+void Construction_niveau();
 
 
 
@@ -73,6 +85,16 @@ int main(int argc, char *argv[])
 
 	//SDL_WM_GrabInput(SDL_GRAB_ON);									// A REMETRRE POUR UTILISER GBD CONFORTABLEMENT §§§§§§§§!!!!!!!!!!!!!!!!!!!!
     SDL_ShowCursor(SDL_DISABLE);
+    
+
+    glEnable(GL_TEXTURE_2D);
+
+    texture = loadTexture("textures.jpg");
+    
+
+    Chargement_niveau();
+
+	//Ini_Texture();
 
 	//mise en place des shaders
 	/*
@@ -112,32 +134,7 @@ int main(int argc, char *argv[])
 	programID = LoadShaders( "vertex.glsl", "fragment.glsl" );
 	
 	
-	// Chargement niveau
-	FILE* fichier = NULL;
-    int caractereActuel = 0;
 
-    fichier = fopen("map.lvl", "r");
-	if(fichier != NULL)  // si l'ouverture a réussi
-        {			
-				fscanf(fichier, "%d %d", &largeur, &hauteur);
-				for (int i =0; i < largeur; i++)
-				{
-						for (int j = 0; j < hauteur; j++)
-						{
-							caractereActuel = fgetc(fichier);
-							if (caractereActuel == '#')
-							{
-								Murs[indexlu].x = i;
-								Murs[indexlu].y = j;
-								indexlu += 1;
-							}
-						}
-				}
-				
-                fclose(fichier);  // on ferme le fichier
-        }
-        else
-                cout << "Impossible d'ouvrir le fichier !" << endl;
 
 
 
@@ -226,13 +223,9 @@ void Dessiner()
     
     glUseProgram(programID); //active l'utilisation du shader (remettre cette fonctiona avec un autre shader pour changer en cours de dessin)
 
-    Cube(0, 0, 0, 0, 0, 255);
-    Cube(1, 1, 1, 125, 125, 0);
+    
 	
-	for (int i = 0; i<largeur*hauteur; i++)
-	{
-		Cube(Murs[i].x, Murs[i].y, 0, 125, 0, 0);
-	}
+	Construction_niveau(); //Construit vertex en suivant de la carte chargé
 	
     glEnd();
 
@@ -241,37 +234,127 @@ void Dessiner()
 }
 
 
-void Cube(int x, int y, int z, int r, int g, int b)
-{
+void Cube(int x, int y, int z, int r, int g, int b, int ind_texture)
+{   
+    cout<<texture<<endl;
+    cout<<"    "<<endl;
+    //GLuint text = 1;
+    float u = 0.0;
+    float v = 0.0;
+    switch (ind_texture)
+
+  {
+
+    case 0:
+
+        u = 0.33;
+        v = 0.0;
+       
+
+       break;
+
+    case 1:
+        u = 0.66; 
+        v = 0.34;
+       
+
+       break;
+
+    case 2:
+        
+        u = 1.0;
+        v = 0.67;
+
+       
+
+       break;
+   }
+
+    glBindTexture(GL_TEXTURE_2D, texture);
 	glColor3ub(r, g, b);
-    glVertex3d(x+0.5, y+0.5, z+0.5);
-    glVertex3d(x+0.5, y+0.5, z-0.5);
-    glVertex3d(x-0.5, y+0.5, z-0.5);
-    glVertex3d(x-0.5, y+0.5, z+0.5);
+    glColor3ub(255,255,255);
+    //glDisable(GL_LIGHTING);
 
-    glVertex3d(x+0.5, y-0.5, z+0.5);
-    glVertex3d(x+0.5, y-0.5, z-0.5);
-    glVertex3d(x+0.5, y+0.5, z-0.5);
-    glVertex3d(x+0.5, y+0.5, z+0.5);
+    glTexCoord2d(v,1); glVertex3d(x+0.5, y+0.5, z+0.5);
+    glTexCoord2d(v,0); glVertex3d(x+0.5, y+0.5, z-0.5);
+    glTexCoord2d(u,0); glVertex3d(x-0.5, y+0.5, z-0.5);
+    glTexCoord2d(u,1); glVertex3d(x-0.5, y+0.5, z+0.5);
 
-    glVertex3d(x-0.5, y-0.5, z+0.5);
-    glVertex3d(x-0.5, y-0.5, z-0.5);
-    glVertex3d(x+0.5, y-0.5, z-0.5);
-    glVertex3d(x+0.5, y-0.5, z+0.5);
+    glTexCoord2d(v,1); glVertex3d(x+0.5, y-0.5, z+0.5);
+    glTexCoord2d(v,0); glVertex3d(x+0.5, y-0.5, z-0.5);
+    glTexCoord2d(u,0); glVertex3d(x+0.5, y+0.5, z-0.5);
+    glTexCoord2d(u,1); glVertex3d(x+0.5, y+0.5, z+0.5);
 
-    glVertex3d(x-0.5, y+0.5, z+0.5);
-    glVertex3d(x-0.5, y+0.5, z-0.5);
-    glVertex3d(x-0.5, y-0.5, z-0.5);
-    glVertex3d(x-0.5, y-0.5, z+0.5);
+    glTexCoord2d(v,1); glVertex3d(x-0.5, y-0.5, z+0.5);
+    glTexCoord2d(v,0); glVertex3d(x-0.5, y-0.5, z-0.5);
+    glTexCoord2d(u,0); glVertex3d(x+0.5, y-0.5, z-0.5);
+    glTexCoord2d(u,1); glVertex3d(x+0.5, y-0.5, z+0.5);
 
-    glVertex3d(x+0.5, y+0.5, z-0.5);
-    glVertex3d(x+0.5, y-0.5, z-0.5);
-    glVertex3d(x-0.5, y-0.5, z-0.5);
-    glVertex3d(x-0.5, y+0.5, z-0.5);
+    glTexCoord2d(v,1);glVertex3d(x-0.5, y+0.5, z+0.5);
+    glTexCoord2d(v,0);glVertex3d(x-0.5, y+0.5, z-0.5);
+    glTexCoord2d(u,0);glVertex3d(x-0.5, y-0.5, z-0.5);
+    glTexCoord2d(u,1);glVertex3d(x-0.5, y-0.5, z+0.5);
 
-    glVertex3d(x+0.5, y-0.5, z+0.5);
-    glVertex3d(x+0.5, y+0.5, z+0.5);
-    glVertex3d(x-0.5, y+0.5, z+0.5);
-    glVertex3d(x-0.5, y-0.5, z+0.5);
+    glTexCoord2d(v,1);glVertex3d(x+0.5, y+0.5, z-0.5);
+    glTexCoord2d(v,0);glVertex3d(x+0.5, y-0.5, z-0.5);
+    glTexCoord2d(u,0);glVertex3d(x-0.5, y-0.5, z-0.5);
+    glTexCoord2d(u,1);glVertex3d(x-0.5, y+0.5, z-0.5);
+
+    glTexCoord2d(v,1);glVertex3d(x+0.5, y-0.5, z+0.5);
+    glTexCoord2d(v,0);glVertex3d(x+0.5, y+0.5, z+0.5);
+    glTexCoord2d(u,0);glVertex3d(x-0.5, y+0.5, z+0.5);
+    glTexCoord2d(u,1); glVertex3d(x-0.5, y-0.5, z+0.5);
+    //glDisable(GL_TEXTURE_2D);
 	
+}
+
+void Chargement_niveau()
+{
+    // Chargement niveau
+    FILE* fichier = NULL;
+    int caractereActuel = 0;
+
+    fichier = fopen("map.lvl", "r");
+    if(fichier != NULL)  // si l'ouverture a réussi
+        {           
+                fscanf(fichier, "%d %d", &largeur, &hauteur);
+                for (int i =0; i < largeur; i++)
+                {
+                        for (int j = 0; j < hauteur; j++)
+                        {
+                            caractereActuel = fgetc(fichier);
+                            if (caractereActuel == '#')
+                            {
+                                Murs[indexlu].x = i;
+                                Murs[indexlu].y = j;
+                                indexlu += 1;
+                            }
+                        }
+                }
+                
+                fclose(fichier);  // on ferme le fichier
+        }
+        else
+                cout << "Impossible d'ouvrir le fichier !" << endl;
+}
+
+void Construction_niveau()
+{
+	for (int i = 0; i<largeur*hauteur; i++)
+	{   
+		Cube(Murs[i].x, Murs[i].y, 0, 125, 0, 0, ind_texture_Mur);
+        Cube(Murs[i].x, Murs[i].y, 1, 125, 0, 0, ind_texture_Mur); 
+
+	}
+	
+    for (int i = 0; i<largeur; i++) 
+    {
+        for (int j = 0; j<hauteur; j++)
+        {
+
+            Cube(i,j,-1,128,128,128, ind_texture_Sol);
+            Cube(i,j,2,50,128,50, ind_texture_Plafond);
+        }
+
+    }
 }
