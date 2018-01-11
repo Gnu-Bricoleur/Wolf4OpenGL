@@ -55,6 +55,8 @@ void Chargement_niveau();
 //void Ini_Texture();
 void Dessiner();
 void Construction_niveau();
+double modulo( double angle );
+
 
 
 
@@ -83,9 +85,9 @@ int main(int argc, char *argv[])
 
 	SDL_EnableKeyRepeat(10, 10);
 
-	//SDL_WM_GrabInput(SDL_GRAB_ON);									// A REMETRRE POUR UTILISER GBD CONFORTABLEMENT §§§§§§§§!!!!!!!!!!!!!!!!!!!!
+	SDL_WM_GrabInput(SDL_GRAB_ON);									// A REMETRRE POUR UTILISER GBD CONFORTABLEMENT §§§§§§§§!!!!!!!!!!!!!!!!!!!!
     SDL_ShowCursor(SDL_DISABLE);
-    
+    //SDL_SetRelativeMouseMode(enable);
 
     glEnable(GL_TEXTURE_2D);
 
@@ -173,9 +175,12 @@ int main(int argc, char *argv[])
 					}
 					break;
 				case SDL_MOUSEMOTION:
-					angleZ = -(320 - (event.motion.x));
-					angleZ = (angleZ/180)*PI;//conversion degre radian
-					cout<<angleZ<<endl;					
+					//angleZ += angleZ -(320 - (event.motion.x));
+					angleZ += event.motion.xrel*10;
+					//angleZ = (angleZ/180)*PI;//conversion degre radian
+					//angleZ = modulo(angleZ);
+				
+					//cout<<angleZ<<endl;					
 					break;
             }
         }
@@ -201,6 +206,15 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+
+double modulo( double angle )
+{
+    double tot = 2.0 * PI;
+    return angle - tot * floor( angle / tot );
+}
+
+
 
 void Dessiner()
 {
