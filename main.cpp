@@ -85,10 +85,10 @@ int main(int argc, char *argv[])
 
 	SDL_EnableKeyRepeat(10, 10);
 
-	SDL_WM_GrabInput(SDL_GRAB_ON);									// A REMETRRE POUR UTILISER GBD CONFORTABLEMENT §§§§§§§§!!!!!!!!!!!!!!!!!!!!
+	//SDL_WM_GrabInput(SDL_GRAB_ON);									// A REMETRRE POUR UTILISER GBD CONFORTABLEMENT §§§§§§§§!!!!!!!!!!!!!!!!!!!!
     //SDL_ShowCursor(SDL_DISABLE);
     //SDL_SetRelativeMouseMode(enable);
-
+	SDL_WarpMouse(320, 240);
     glEnable(GL_TEXTURE_2D);
 
     texture = loadTexture("textures.jpg");
@@ -176,11 +176,11 @@ int main(int argc, char *argv[])
 					break;
 				case SDL_MOUSEMOTION:
 					//angleZ += angleZ -(320 - (event.motion.x));
-					angleZ += event.motion.xrel/100.0;
+					angleZ = event.motion.x;
 					//angleZ = (angleZ/180)*PI;//conversion degre radian
-					//angleZ = modulo(angleZ);
+					angleZ = fmod(angleZ, 360);
 				
-					//cout<<angleZ<<endl;					
+					cout<<angleZ<<endl;					
 					break;
             }
         }
@@ -222,13 +222,13 @@ void Dessiner()
 
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity( );
+	positionX = positionXini + deplacementX;
+	positionY = positionYini + deplacementY;
 
-	positionX = positionXini + deplacementX + sin(angleZ);
-	positionY = positionYini + deplacementY + cos(angleZ);
+    gluLookAt(positionX,positionY,1,positionX + 1 ,positionY,1,0,0,1);
+	
 
-    gluLookAt(positionX,positionY,1,positionX + 1 + sin(angleZ),positionY + cos(angleZ),1,0,0,1);
-
-    //glRotated(angleZ,0,0,1);
+    glRotated(angleZ,0,0,1);
     //glRotated(angleX,1,0,0);
     //glRotated(angleY,0,1,0);
     //glTranslated(deplacementX, deplacementY, deplacementZ);
@@ -250,8 +250,8 @@ void Dessiner()
 
 void Cube(int x, int y, int z, int r, int g, int b, int ind_texture)
 {   
-    cout<<texture<<endl;
-    cout<<"    "<<endl;
+    //<<texture<<endl;
+    //cout<<"    "<<endl;
     //GLuint text = 1;
     float u = 0.0;
     float v = 0.0;
