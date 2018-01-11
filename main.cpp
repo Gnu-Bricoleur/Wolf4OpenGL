@@ -225,7 +225,7 @@ void Dessiner()
 	positionX = positionXini + deplacementX;
 	positionY = positionYini + deplacementY;
 
-    gluLookAt(positionX,positionY,1,positionX + 1 ,positionY,1,0,0,1);
+    gluLookAt(positionX,positionY,1,positionX + 0.1 ,positionY,1,0,0,1);
 	
 
     glRotated(angleZ,0,0,1);
@@ -237,7 +237,6 @@ void Dessiner()
     
     glUseProgram(programID); //active l'utilisation du shader (remettre cette fonctiona avec un autre shader pour changer en cours de dessin)
 
-    
 	
 	Construction_niveau(); //Construit vertex en suivant de la carte chargé
 	
