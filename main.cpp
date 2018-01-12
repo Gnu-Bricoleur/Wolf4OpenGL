@@ -1,4 +1,5 @@
 #include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
 //#include <GL/gl.h>
 #include <GL/glew.h>
 #include <GL/glu.h>
@@ -33,6 +34,11 @@ double positionXini = 0;
 double positionYini = 0;
 double positionX, positionY;
 bool premierefois = true;
+int avancer = 0;
+int strafer = 0;
+
+
+
 
 //textures
 GLuint texture;
@@ -71,7 +77,10 @@ int main(int argc, char *argv[])
 	freopen( "CON", "w", stderr );
     
     atexit(SDL_Quit);
-    SDL_WM_SetCaption("SDL GL Application", NULL);
+    SDL_WM_SetCaption("Wolfenstein", NULL);
+    
+    
+    
     SDL_SetVideoMode(640, 480, 32, SDL_OPENGL);
 
     glMatrixMode( GL_PROJECTION );
@@ -92,7 +101,6 @@ int main(int argc, char *argv[])
     glEnable(GL_TEXTURE_2D);
 
     texture = loadTexture("textures.jpg");
-    
 
     Chargement_niveau();
 
@@ -136,11 +144,7 @@ int main(int argc, char *argv[])
 	programID = LoadShaders( "vertex.glsl", "fragment.glsl" );
 	
 	
-
-
-
-
-    for (;;)
+	for (;;)
     {
         start_time = SDL_GetTicks();
         while (SDL_PollEvent(&event))
@@ -152,23 +156,29 @@ int main(int argc, char *argv[])
 					exit(0);
 					break;
                 case SDL_KEYDOWN:
+					avancer = 0;
+					strafer = 0;
 					switch(event.key.keysym.sym)
 					{
 						case SDLK_z:
 						case SDLK_UP: // Flèche haut
 							deplacementX += vitesse;
+							avancer = 1;
 							break;
 						case SDLK_s:
 						case SDLK_DOWN: // Flèche bas
 							deplacementX -= vitesse;
+							avancer = -1;
 							break;
 						case SDLK_d:
 						case SDLK_RIGHT: // Flèche droite
 							deplacementY -= vitesse;
+							strafer = 1;
 							break;
 						case SDLK_q:
 						case SDLK_LEFT: // Flèche gauche
 							deplacementY += vitesse;
+							strafer = -1;
 							break;
 						case SDLK_ESCAPE:
 							exit(0);
@@ -186,10 +196,21 @@ int main(int argc, char *argv[])
 					}
 					*/
 					//angleZ = fmod(angleZ, 360);
+					
+					angleZ = (angleZ/640)*360;//conversion resolution degree
+					cout<<angleZ<<endl;
+					if(angleZ <= 1)
+					{
+						SDL_WarpMouse(639, 240);
+					}
+					if(angleZ >= 360)
+					{
+						SDL_WarpMouse(1, 240);
+					}
 					angleZ = (angleZ/180)*PI;//conversion degre radian
 					
 					//cout<<event.motion.xrel<<endl;
-					cout<<angleZ<<endl;					
+										
 					break;
             }
         }
@@ -234,9 +255,28 @@ void Dessiner()
     
     double deplacement =  sqrt(deplacementX*deplacementX + deplacementY*deplacementY);
     
-	positionX += positionXini + deplacement * sin(angleZ);
-	positionY += positionYini + deplacement * cos(angleZ);
-
+    if (avancer == 1)
+    {
+		positionX += deplacement * sin(angleZ);
+		positionY += deplacement * cos(angleZ);
+	}
+	else if (avancer == -1)
+	{
+		positionX -= deplacement * sin(angleZ);
+		positionY -= deplacement * cos(angleZ);
+	}
+	
+	if (strafer == 1)
+    {
+		positionX += deplacement * sin(angleZ);
+		positionY += deplacement * cos(angleZ);
+	}
+	else if (strafer == -1)
+	{
+		positionX -= deplacement * sin(angleZ);
+		positionY -= deplacement * cos(angleZ);
+	}
+	
     gluLookAt(positionX,positionY,1,positionX + 0.1 * sin(angleZ),positionY + 0.1 * cos(angleZ) ,1,0,0,1);
 	
 	//positionXini += deplacementX;
