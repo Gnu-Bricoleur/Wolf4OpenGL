@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
 	SDL_WarpMouse(320, 240);
     glEnable(GL_TEXTURE_2D);
 
-    texture = loadTexture("textures.jpg");
+    texture = loadTexture("images/textures.jpg");
 
     Chargement_niveau();
 
