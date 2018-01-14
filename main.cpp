@@ -30,9 +30,9 @@ double deplacementZ = 0;
 float vitesse = 0.1;
 int indexlu = 0;
 int largeur, hauteur;
-double positionXini = 0;
-double positionYini = 0;
-double positionX, positionY;
+double positionX = 10;
+double positionY = 10;
+
 bool premierefois = true;
 int avancer = 0;
 int strafer = 0;
@@ -255,11 +255,11 @@ void Dessiner()
     double deplacement =  sqrt(deplacementX*deplacementX + deplacementY*deplacementY);
     
     int collision = 0;
-	if ( premierefois == true)
-	{
-		gluLookAt(5,5,1,5+ 0.1 * sin(angleZ),5 + 0.1 * cos(angleZ) ,5,5,5,1);
-		premierefois = false;
-	}
+	//if ( premierefois == true)
+	//{
+		//gluLookAt(5,5,1,5+ 0.1 * sin(angleZ),5 + 0.1 * cos(angleZ) ,5,5,5,1);
+		//premierefois = false;
+	//}
     
     
     if (avancer == 1)
@@ -316,13 +316,55 @@ void Dessiner()
 	
 	if (strafer == 1)
     {
-		positionX += deplacement * sin(angleZ+ PI/2);
-		positionY += deplacement * cos(angleZ+ PI/2);
+		for(int i  = 0 ; i<10000 ; i++)
+		{
+			if ( (abs((positionX + deplacement * sin(angleZ + PI/2)) - (Murs[i].x + 0.5)) < 0.5) || (abs((positionX + deplacement * sin(angleZ + PI/2)) - (Murs[i].x - 0.5)) < 0.5)) //si distance faible en x
+			{	
+				if ((abs((positionY + deplacement * cos(angleZ + PI/2)) - (Murs[i].y + 0.5)) < 0.5) || (abs((positionY + deplacement * cos(angleZ + PI/2)) - (Murs[i].y - 0.5)) < 0.5))//si distance faible en y
+				{	
+					collision = 1;
+					cout<<Murs[i].x<<endl; //mur qui prvoque la collision
+					cout<<Murs[i].y<<endl;
+					break;
+				}
+			}
+		
+		}
+		if(collision == 0)
+		{
+			positionX += deplacement * sin(angleZ+ PI/2);
+			positionY += deplacement * cos(angleZ+ PI/2);
+		}
+		
+		
+		//positionX += deplacement * sin(angleZ+ PI/2);
+		//positionY += deplacement * cos(angleZ+ PI/2);
 	}
 	else if (strafer == -1)
 	{
-		positionX -= deplacement * sin(angleZ+ PI/2);
-		positionY -= deplacement * cos(angleZ+ PI/2);
+		
+		for(int i  = 0 ; i<10000 ; i++)
+		{
+			if ( (abs((positionX - deplacement * sin(angleZ+ PI/2)) - (Murs[i].x + 0.5)) < 0.5) || (abs((positionX - deplacement * sin(angleZ+ PI/2)) - (Murs[i].x - 0.5)) < 0.5)) //si distance faible en x
+			{	
+				if ((abs((positionY - deplacement * cos(angleZ+ PI/2)) - (Murs[i].y + 0.5)) < 0.5) || (abs((positionY - deplacement * cos(angleZ+ PI/2)) - (Murs[i].y - 0.5)) < 0.5))//si distance faible en y
+				{	
+					collision = 1;
+					cout<<Murs[i].x<<endl; //mur qui prvoque la collision
+					cout<<Murs[i].y<<endl;
+					break;
+				}
+			}
+		
+		}
+		if(collision == 0)
+		{
+			positionX -= deplacement * sin(angleZ+ PI/2);
+			positionY -= deplacement * cos(angleZ+ PI/2);
+		}
+		
+		//positionX -= deplacement * sin(angleZ+ PI/2);
+		//positionY -= deplacement * cos(angleZ+ PI/2);
 	}
 	
 	collision = 0;
