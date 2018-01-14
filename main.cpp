@@ -36,7 +36,7 @@ double positionX, positionY;
 bool premierefois = true;
 int avancer = 0;
 int strafer = 0;
-
+float frame = 0;
 
 
 
@@ -45,7 +45,7 @@ GLuint texture;
 int ind_texture_Mur = 2;
 int ind_texture_Plafond = 1;
 int ind_texture_Sol = 0;
-
+int nazix, naziy;
 
 
 
@@ -53,7 +53,7 @@ struct coord{
 	double x, y;
 	};
 	
-coord Murs[1000];
+coord Murs[10000];
 
 
 
@@ -63,7 +63,7 @@ void Chargement_niveau();
 void Dessiner();
 void Construction_niveau();
 double modulo( double angle );
-
+void nazi();
 
 
 
@@ -101,7 +101,6 @@ int main(int argc, char *argv[])
     glEnable(GL_TEXTURE_2D);
 
     texture = loadTexture("images/textures.jpg");
-
     Chargement_niveau();
 
 	//Ini_Texture();
@@ -198,7 +197,7 @@ int main(int argc, char *argv[])
 					//angleZ = fmod(angleZ, 360);
 					
 					angleZ = (angleZ/640)*360;//conversion resolution degree
-					cout<<angleZ<<endl;
+					//cout<<angleZ<<endl;
 					if(angleZ <= 1)
 					{
 						SDL_WarpMouse(639, 240);
@@ -255,28 +254,78 @@ void Dessiner()
     
     double deplacement =  sqrt(deplacementX*deplacementX + deplacementY*deplacementY);
     
+    int collision = 0;
+	if ( premierefois == true)
+	{
+		gluLookAt(5,5,1,5+ 0.1 * sin(angleZ),5 + 0.1 * cos(angleZ) ,5,5,5,1);
+		premierefois = false;
+	}
+    
+    
     if (avancer == 1)
     {
-		positionX += deplacement * sin(angleZ);
-		positionY += deplacement * cos(angleZ);
+		for(int i  = 0 ; i<10000 ; i++)
+		{
+			if ( (abs((positionX + deplacement * sin(angleZ)) - (Murs[i].x + 0.5)) < 0.5) || (abs((positionX + deplacement * sin(angleZ)) - (Murs[i].x - 0.5)) < 0.5)) //si distance faible en x
+			{	
+				if ((abs((positionY + deplacement * cos(angleZ)) - (Murs[i].y + 0.5)) < 0.5) || (abs((positionY + deplacement * cos(angleZ)) - (Murs[i].y - 0.5)) < 0.5))//si distance faible en y
+				{	
+					collision = 1;
+					cout<<Murs[i].x<<endl; //mur qui prvoque la collision
+					cout<<Murs[i].y<<endl;
+					break;
+				}
+			}
+		
+		}
+		if(collision == 0)
+		{
+			positionX += deplacement * sin(angleZ);
+			positionY += deplacement * cos(angleZ);
+		}
+		cout<<collision<<endl;	
+		
+		//positionX += deplacement * sin(angleZ);
+		//positionY += deplacement * cos(angleZ);
 	}
 	else if (avancer == -1)
 	{
-		positionX -= deplacement * sin(angleZ);
-		positionY -= deplacement * cos(angleZ);
+		for(int i  = 0 ; i<10000 ; i++)
+		{
+			if ( (abs((positionX - deplacement * sin(angleZ)) - (Murs[i].x + 0.5)) < 0.5) || (abs((positionX - deplacement * sin(angleZ)) - (Murs[i].x - 0.5)) < 0.5)) //si distance faible en x
+			{	
+				if ((abs((positionY - deplacement * cos(angleZ)) - (Murs[i].y + 0.5)) < 0.5) || (abs((positionY - deplacement * cos(angleZ)) - (Murs[i].y - 0.5)) < 0.5))//si distance faible en y
+				{	
+					collision = 1;
+					cout<<Murs[i].x<<endl; //mur qui prvoque la collision
+					cout<<Murs[i].y<<endl;
+					break;
+				}
+			}
+		
+		}
+		if(collision == 0)
+		{
+			positionX -= deplacement * sin(angleZ);
+			positionY -= deplacement * cos(angleZ);
+		}
+
+		//positionX -= deplacement * sin(angleZ);
+		//positionY -= deplacement * cos(angleZ);
 	}
 	
 	if (strafer == 1)
     {
-		positionX += deplacement * sin(angleZ);
-		positionY += deplacement * cos(angleZ);
+		positionX += deplacement * sin(angleZ+ PI/2);
+		positionY += deplacement * cos(angleZ+ PI/2);
 	}
 	else if (strafer == -1)
 	{
-		positionX -= deplacement * sin(angleZ);
-		positionY -= deplacement * cos(angleZ);
+		positionX -= deplacement * sin(angleZ+ PI/2);
+		positionY -= deplacement * cos(angleZ+ PI/2);
 	}
 	
+	collision = 0;
     gluLookAt(positionX,positionY,1,positionX + 0.1 * sin(angleZ),positionY + 0.1 * cos(angleZ) ,1,0,0,1);
 	
 	//positionXini += deplacementX;
@@ -312,32 +361,19 @@ void Cube(int x, int y, int z, int r, int g, int b, int ind_texture)
     float u = 0.0;
     float v = 0.0;
     switch (ind_texture)
-
-  {
-
-    case 0:
-
-        u = 0.33;
-        v = 0.0;
-       
-
-       break;
-
-    case 1:
-        u = 0.66; 
-        v = 0.34;
-       
-
-       break;
-
-    case 2:
-        
-        u = 1.0;
-        v = 0.67;
-
-       
-
-       break;
+	{
+		case 0:
+			u = 0.33;
+			v = 0.0;
+            break;
+		case 1:
+			u = 0.66; 
+			v = 0.34;
+			break;
+		case 2:
+			u = 1.0;
+			v = 0.67;
+			break;
    }
 
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -375,6 +411,9 @@ void Cube(int x, int y, int z, int r, int g, int b, int ind_texture)
     glTexCoord2d(u,0);glVertex3d(x-0.5, y+0.5, z+0.5);
     glTexCoord2d(u,1); glVertex3d(x-0.5, y-0.5, z+0.5);
     //glDisable(GL_TEXTURE_2D);
+    
+    
+   
 	
 }
 
@@ -388,9 +427,11 @@ void Chargement_niveau()
     if(fichier != NULL)  // si l'ouverture a réussi
         {           
                 fscanf(fichier, "%d %d", &largeur, &hauteur);
+                cout << largeur << endl;
+                cout << hauteur << endl;
                 for (int i =0; i < largeur; i++)
                 {
-                        for (int j = 0; j < hauteur; j++)
+                        for (int j = 0; j < hauteur+1; j++)
                         {
                             caractereActuel = fgetc(fichier);
                             if (caractereActuel == '#')
@@ -399,6 +440,11 @@ void Chargement_niveau()
                                 Murs[indexlu].y = j;
                                 indexlu += 1;
                             }
+                            else if (caractereActuel == 'n')
+                            {
+								nazix = i;
+								naziy = j;
+							}
                         }
                 }
                 
@@ -427,4 +473,39 @@ void Construction_niveau()
         }
 
     }
+    nazi();
+}
+
+
+void nazi()
+{
+	float u = 0.0;
+    float v = 0.0;
+    switch ((int)frame)
+	{
+		case 0:
+			u = 0.33;
+			v = 0.0;
+            break;
+		case 1:
+			u = 0.66; 
+			v = 0.34;
+			break;
+		case 2:
+			u = 1.0;
+			v = 0.67;
+			break;
+   }
+	glBindTexture(GL_TEXTURE_2D, texture);
+    glBegin(GL_QUADS);
+    glTexCoord2d(v,1);  glVertex3d(nazix + 1,naziy + 1,1);
+    glTexCoord2d(v,0);  glVertex3d(nazix + 1,naziy + 1,-1);
+    glTexCoord2d(u,0);  glVertex3d(nazix -1,naziy + 1,-1);
+    glTexCoord2d(u,1);  glVertex3d(nazix -1,naziy + 1,1);
+    glEnd();
+    frame+=0.02;
+	if (frame > 2)
+	{
+		frame = 0;
+	}
 }
