@@ -32,6 +32,7 @@ int indexlu = 0;
 int largeur, hauteur;
 double positionX = 10;
 double positionY = 10;
+float distCollision = 0.1;
 
 bool premierefois = true;
 int avancer = 0;
@@ -42,15 +43,16 @@ float frame = 0;
 
 //textures
 GLuint texture;
-int ind_texture_Mur = 2;
-int ind_texture_Plafond = 1;
-int ind_texture_Sol = 0;
+int ind_texture_Drapeau = 2;
+int ind_texture_Tableau = 1;
+int ind_texture_Mur = 0;
 int nazix, naziy;
 
 
 
 struct coord{
 	double x, y;
+	int type;
 	};
 	
 coord Murs[10000];
@@ -100,7 +102,7 @@ int main(int argc, char *argv[])
 	SDL_WarpMouse(320, 240);
     glEnable(GL_TEXTURE_2D);
 
-    texture = loadTexture("images/textures.jpg");
+    texture = loadTexture("images/texturesf.png");
     Chargement_niveau();
 
 	//Ini_Texture();
@@ -266,9 +268,9 @@ void Dessiner()
     {
 		for(int i  = 0 ; i<10000 ; i++)
 		{
-			if ( (abs((positionX + deplacement * sin(angleZ)) - (Murs[i].x + 0.5)) < 0.5) || (abs((positionX + deplacement * sin(angleZ)) - (Murs[i].x - 0.5)) < 0.5)) //si distance faible en x
+			if ( (abs((positionX + deplacement * sin(angleZ)) - (Murs[i].x + 0.5)) < distCollision) || (abs((positionX + deplacement * sin(angleZ)) - (Murs[i].x - 0.5)) < distCollision)) //si distance faible en x
 			{	
-				if ((abs((positionY + deplacement * cos(angleZ)) - (Murs[i].y + 0.5)) < 0.5) || (abs((positionY + deplacement * cos(angleZ)) - (Murs[i].y - 0.5)) < 0.5))//si distance faible en y
+				if ((abs((positionY + deplacement * cos(angleZ)) - (Murs[i].y + 0.5)) < distCollision) || (abs((positionY + deplacement * cos(angleZ)) - (Murs[i].y - 0.5)) < distCollision))//si distance faible en y
 				{	
 					collision = 1;
 					cout<<Murs[i].x<<endl; //mur qui prvoque la collision
@@ -292,9 +294,9 @@ void Dessiner()
 	{
 		for(int i  = 0 ; i<10000 ; i++)
 		{
-			if ( (abs((positionX - deplacement * sin(angleZ)) - (Murs[i].x + 0.5)) < 0.5) || (abs((positionX - deplacement * sin(angleZ)) - (Murs[i].x - 0.5)) < 0.5)) //si distance faible en x
+			if ( (abs((positionX - deplacement * sin(angleZ)) - (Murs[i].x + 0.5)) < distCollision) || (abs((positionX - deplacement * sin(angleZ)) - (Murs[i].x - 0.5)) < distCollision)) //si distance faible en x
 			{	
-				if ((abs((positionY - deplacement * cos(angleZ)) - (Murs[i].y + 0.5)) < 0.5) || (abs((positionY - deplacement * cos(angleZ)) - (Murs[i].y - 0.5)) < 0.5))//si distance faible en y
+				if ((abs((positionY - deplacement * cos(angleZ)) - (Murs[i].y + 0.5)) < distCollision) || (abs((positionY - deplacement * cos(angleZ)) - (Murs[i].y - 0.5)) < distCollision))//si distance faible en y
 				{	
 					collision = 1;
 					cout<<Murs[i].x<<endl; //mur qui prvoque la collision
@@ -318,9 +320,9 @@ void Dessiner()
     {
 		for(int i  = 0 ; i<10000 ; i++)
 		{
-			if ( (abs((positionX + deplacement * sin(angleZ + PI/2)) - (Murs[i].x + 0.5)) < 0.5) || (abs((positionX + deplacement * sin(angleZ + PI/2)) - (Murs[i].x - 0.5)) < 0.5)) //si distance faible en x
+			if ( (abs((positionX + deplacement * sin(angleZ + PI/2)) - (Murs[i].x + 0.5)) < distCollision) || (abs((positionX + deplacement * sin(angleZ + PI/2)) - (Murs[i].x - 0.5)) < distCollision)) //si distance faible en x
 			{	
-				if ((abs((positionY + deplacement * cos(angleZ + PI/2)) - (Murs[i].y + 0.5)) < 0.5) || (abs((positionY + deplacement * cos(angleZ + PI/2)) - (Murs[i].y - 0.5)) < 0.5))//si distance faible en y
+				if ((abs((positionY + deplacement * cos(angleZ + PI/2)) - (Murs[i].y + 0.5)) < distCollision) || (abs((positionY + deplacement * cos(angleZ + PI/2)) - (Murs[i].y - 0.5)) < distCollision))//si distance faible en y
 				{	
 					collision = 1;
 					cout<<Murs[i].x<<endl; //mur qui prvoque la collision
@@ -402,19 +404,27 @@ void Cube(int x, int y, int z, int r, int g, int b, int ind_texture)
     //GLuint text = 1;
     float u = 0.0;
     float v = 0.0;
+    float w = 0.0;
+    float t = 0.0;
     switch (ind_texture)
 	{
-		case 0:
-			u = 0.33;
-			v = 0.0;
+		case 0://mur pierre gris
+			u = 1-1/12.0;//droite
+			v = 1-0.0;//gauche
+			w = 0.0;//haut
+			t = 1/19.0;//bas
             break;
-		case 1:
-			u = 0.66; 
-			v = 0.34;
+		case 2://mur pierre drapeau
+			u = 1-5/15.0; 
+			v = 1-4/12.0;
+			w = 0.0;
+			t = 1/19.0;
 			break;
-		case 2:
-			u = 1.0;
-			v = 0.67;
+		case 1:// mur pierre tableau
+			u = 1-1/12.0;
+			v = 1-0.0;
+			w = 1/19.0;
+			t = 2/19.0;
 			break;
    }
 
@@ -423,35 +433,35 @@ void Cube(int x, int y, int z, int r, int g, int b, int ind_texture)
     glColor3ub(255,255,255);
     //glDisable(GL_LIGHTING);
 
-    glTexCoord2d(v,1); glVertex3d(x+0.5, y+0.5, z+0.5);
-    glTexCoord2d(v,0); glVertex3d(x+0.5, y+0.5, z-0.5);
-    glTexCoord2d(u,0); glVertex3d(x-0.5, y+0.5, z-0.5);
-    glTexCoord2d(u,1); glVertex3d(x-0.5, y+0.5, z+0.5);
+    glTexCoord2d(v,t); glVertex3d(x+0.5, y+0.5, z+0.5);
+    glTexCoord2d(v,w); glVertex3d(x+0.5, y+0.5, z-0.5);
+    glTexCoord2d(u,w); glVertex3d(x-0.5, y+0.5, z-0.5);
+    glTexCoord2d(u,t); glVertex3d(x-0.5, y+0.5, z+0.5);
 
-    glTexCoord2d(v,1); glVertex3d(x+0.5, y-0.5, z+0.5);
-    glTexCoord2d(v,0); glVertex3d(x+0.5, y-0.5, z-0.5);
-    glTexCoord2d(u,0); glVertex3d(x+0.5, y+0.5, z-0.5);
-    glTexCoord2d(u,1); glVertex3d(x+0.5, y+0.5, z+0.5);
+    glTexCoord2d(v,t); glVertex3d(x+0.5, y-0.5, z+0.5);
+    glTexCoord2d(v,w); glVertex3d(x+0.5, y-0.5, z-0.5);
+    glTexCoord2d(u,w); glVertex3d(x+0.5, y+0.5, z-0.5);
+    glTexCoord2d(u,t); glVertex3d(x+0.5, y+0.5, z+0.5);
 
-    glTexCoord2d(v,1); glVertex3d(x-0.5, y-0.5, z+0.5);
-    glTexCoord2d(v,0); glVertex3d(x-0.5, y-0.5, z-0.5);
-    glTexCoord2d(u,0); glVertex3d(x+0.5, y-0.5, z-0.5);
-    glTexCoord2d(u,1); glVertex3d(x+0.5, y-0.5, z+0.5);
+    glTexCoord2d(v,t); glVertex3d(x-0.5, y-0.5, z+0.5);
+    glTexCoord2d(v,w); glVertex3d(x-0.5, y-0.5, z-0.5);
+    glTexCoord2d(u,w); glVertex3d(x+0.5, y-0.5, z-0.5);
+    glTexCoord2d(u,t); glVertex3d(x+0.5, y-0.5, z+0.5);
 
-    glTexCoord2d(v,1);glVertex3d(x-0.5, y+0.5, z+0.5);
-    glTexCoord2d(v,0);glVertex3d(x-0.5, y+0.5, z-0.5);
-    glTexCoord2d(u,0);glVertex3d(x-0.5, y-0.5, z-0.5);
-    glTexCoord2d(u,1);glVertex3d(x-0.5, y-0.5, z+0.5);
+    glTexCoord2d(v,t);glVertex3d(x-0.5, y+0.5, z+0.5);
+    glTexCoord2d(v,w);glVertex3d(x-0.5, y+0.5, z-0.5);
+    glTexCoord2d(u,w);glVertex3d(x-0.5, y-0.5, z-0.5);
+    glTexCoord2d(u,t);glVertex3d(x-0.5, y-0.5, z+0.5);
 
-    glTexCoord2d(v,1);glVertex3d(x+0.5, y+0.5, z-0.5);
-    glTexCoord2d(v,0);glVertex3d(x+0.5, y-0.5, z-0.5);
-    glTexCoord2d(u,0);glVertex3d(x-0.5, y-0.5, z-0.5);
-    glTexCoord2d(u,1);glVertex3d(x-0.5, y+0.5, z-0.5);
+    glTexCoord2d(v,t);glVertex3d(x+0.5, y+0.5, z-0.5);
+    glTexCoord2d(v,w);glVertex3d(x+0.5, y-0.5, z-0.5);
+    glTexCoord2d(u,w);glVertex3d(x-0.5, y-0.5, z-0.5);
+    glTexCoord2d(u,t);glVertex3d(x-0.5, y+0.5, z-0.5);
 
-    glTexCoord2d(v,1);glVertex3d(x+0.5, y-0.5, z+0.5);
-    glTexCoord2d(v,0);glVertex3d(x+0.5, y+0.5, z+0.5);
-    glTexCoord2d(u,0);glVertex3d(x-0.5, y+0.5, z+0.5);
-    glTexCoord2d(u,1); glVertex3d(x-0.5, y-0.5, z+0.5);
+    glTexCoord2d(v,t);glVertex3d(x+0.5, y-0.5, z+0.5);
+    glTexCoord2d(v,w);glVertex3d(x+0.5, y+0.5, z+0.5);
+    glTexCoord2d(u,w);glVertex3d(x-0.5, y+0.5, z+0.5);
+    glTexCoord2d(u,t); glVertex3d(x-0.5, y-0.5, z+0.5);
     //glDisable(GL_TEXTURE_2D);
     
     
@@ -480,8 +490,23 @@ void Chargement_niveau()
                             {
                                 Murs[indexlu].x = i;
                                 Murs[indexlu].y = j;
+                                Murs[indexlu].type = ind_texture_Mur;
                                 indexlu += 1;
                             }
+                            else if (caractereActuel == 't')
+                            {
+								Murs[indexlu].x = i;
+                                Murs[indexlu].y = j;
+                                Murs[indexlu].type = ind_texture_Tableau;
+                                indexlu += 1;
+							}
+                            else if (caractereActuel == 'd')
+                            {
+								Murs[indexlu].x = i;
+                                Murs[indexlu].y = j;
+                                Murs[indexlu].type = ind_texture_Drapeau;
+                                indexlu += 1;
+							}
                             else if (caractereActuel == 'n')
                             {
 								nazix = i;
@@ -500,9 +525,9 @@ void Construction_niveau()
 {
 	for (int i = 0; i<largeur*hauteur; i++)
 	{   
-		Cube(Murs[i].x, Murs[i].y, 0, 125, 0, 0, ind_texture_Mur);
-        Cube(Murs[i].x, Murs[i].y, 1, 125, 0, 0, ind_texture_Mur); 
-
+		Cube(Murs[i].x, Murs[i].y, 0, 125, 0, 0, Murs[i].type);
+        Cube(Murs[i].x, Murs[i].y, 1, 125, 0, 0, Murs[i].type); 
+		Cube(Murs[i].x, Murs[i].y, 2, 125, 0, 0, Murs[i].type);
 	}
 	
     for (int i = 0; i<largeur; i++) 
@@ -510,8 +535,8 @@ void Construction_niveau()
         for (int j = 0; j<hauteur; j++)
         {
 
-            Cube(i,j,-1,128,128,128, ind_texture_Sol);
-            Cube(i,j,2,50,128,50, ind_texture_Plafond);
+            Cube(i,j,-1,128,128,128, ind_texture_Mur);
+            Cube(i,j,3,50,128,50, ind_texture_Mur);
         }
 
     }
@@ -523,6 +548,7 @@ void nazi()
 {
 	float u = 0.0;
     float v = 0.0;
+    float w = 0.0;
     switch ((int)frame)
 	{
 		case 0:
@@ -538,15 +564,15 @@ void nazi()
 			v = 0.67;
 			break;
    }
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, texture);//A corriger
     glBegin(GL_QUADS);
-    glTexCoord2d(v,1);  glVertex3d(nazix + 1,naziy + 1,1);
-    glTexCoord2d(v,0);  glVertex3d(nazix + 1,naziy + 1,-1);
-    glTexCoord2d(u,0);  glVertex3d(nazix -1,naziy + 1,-1);
-    glTexCoord2d(u,1);  glVertex3d(nazix -1,naziy + 1,1);
+    glTexCoord2d(v,1);  glVertex3d(nazix + 1 * cos(angleZ), naziy - 1 * sin(angleZ),1);
+    glTexCoord2d(v,0);  glVertex3d(nazix + 1 * cos(angleZ), naziy + 1 * sin(angleZ),-1);
+    glTexCoord2d(u,0);  glVertex3d(nazix - 1 * cos(angleZ), naziy - 1 * sin(angleZ),-1);
+    glTexCoord2d(u,1);  glVertex3d(nazix - 1 * cos(angleZ), naziy + 1 * sin(angleZ),1);
     glEnd();
     frame+=0.02;
-	if (frame > 2)
+	if (frame > 3)
 	{
 		frame = 0;
 	}
