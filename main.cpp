@@ -47,7 +47,11 @@ int ind_texture_Drapeau = 2;
 int ind_texture_Tableau = 1;
 int ind_texture_Mur = 0;
 int nazix, naziy;
-
+int ind_texture_Brique = 3;// mur brique
+int ind_texture_Briue_Couronne = 4;// mur brique couronne
+int ind_texture_Bois = 5;// mur bois
+int ind_texture_Bois_tableau = 6;// mur bois tableau
+int ind_texture_Carrelage = 7;// carrelage
 
 
 struct coord{
@@ -144,6 +148,9 @@ int main(int argc, char *argv[])
 	
 	programID = LoadShaders( "vertex.glsl", "fragment.glsl" );
 	
+	
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	for (;;)
     {
@@ -409,22 +416,52 @@ void Cube(int x, int y, int z, int r, int g, int b, int ind_texture)
     switch (ind_texture)
 	{
 		case 0://mur pierre gris
-			u = 1-1/12.0;//droite
-			v = 1-0.0;//gauche
-			w = 0.0;//haut
-			t = 1/19.0;//bas
+			u = 1/12.0;//droite
+			v = 0.0;//gauche
+			w = 1-0.0;//haut
+			t = 1-1/19.0;//bas
             break;
 		case 2://mur pierre drapeau
-			u = 1-5/15.0; 
-			v = 1-4/12.0;
-			w = 0.0;
-			t = 1/19.0;
+			u = 5/12.0; 
+			v = 4/12.0;
+			w = 1-1/19.0;
+			t = 1-0.0;
 			break;
 		case 1:// mur pierre tableau
-			u = 1-1/12.0;
-			v = 1-0.0;
-			w = 1/19.0;
-			t = 2/19.0;
+			u = 1/12.0;
+			v = 0.0;
+			w = 1-2/19.0;
+			t = 1-1/19.0;
+			break;
+		case 3:// mur brique
+			u = 3/12.0;
+			v = 2/12.0;
+			w = 1-6/19.0;
+			t = 1-5/19.0;
+			break;
+		case 4:// mur brique couronne
+			u = 5/12.0;
+			v = 4/12.0;
+			w = 1-6/19.0;
+			t = 1-5/19.0;
+			break;
+		case 5:// mur bois
+			u = 5/12.0-0.01;
+			v = 4/12.0+0.01;
+			w = 1-4/19.0+0.01;
+			t = 1-3/19.0-0.01;
+			break;
+		case 6:// mur bois tableau
+			u = 1/12.0;
+			v = 0.0;
+			w = 1-4/19.0;
+			t = 1-3/19.0;
+			break;
+		case 7:// carrelage
+			u = 2/12.0;
+			v = 1/12.0;
+			w = 1-1/19.0;
+			t = 1-0/19.0;
 			break;
    }
 
@@ -525,9 +562,18 @@ void Construction_niveau()
 {
 	for (int i = 0; i<largeur*hauteur; i++)
 	{   
-		Cube(Murs[i].x, Murs[i].y, 0, 125, 0, 0, Murs[i].type);
-        Cube(Murs[i].x, Murs[i].y, 1, 125, 0, 0, Murs[i].type); 
-		Cube(Murs[i].x, Murs[i].y, 2, 125, 0, 0, Murs[i].type);
+		if (Murs[i].type == ind_texture_Tableau)
+		{
+			Cube(Murs[i].x, Murs[i].y, 0, 125, 0, 0, ind_texture_Mur);
+			Cube(Murs[i].x, Murs[i].y, 1, 125, 0, 0, Murs[i].type); 
+			Cube(Murs[i].x, Murs[i].y, 2, 125, 0, 0, ind_texture_Mur);
+		}
+		else
+		{
+			Cube(Murs[i].x, Murs[i].y, 0, 125, 0, 0, Murs[i].type);
+			Cube(Murs[i].x, Murs[i].y, 1, 125, 0, 0, Murs[i].type); 
+			Cube(Murs[i].x, Murs[i].y, 2, 125, 0, 0, Murs[i].type);
+		}
 	}
 	
     for (int i = 0; i<largeur; i++) 
@@ -535,8 +581,8 @@ void Construction_niveau()
         for (int j = 0; j<hauteur; j++)
         {
 
-            Cube(i,j,-1,128,128,128, ind_texture_Mur);
-            Cube(i,j,3,50,128,50, ind_texture_Mur);
+            Cube(i,j,-1,128,128,128, ind_texture_Bois);
+            Cube(i,j,3,50,128,50, ind_texture_Carrelage);
         }
 
     }
@@ -549,29 +595,36 @@ void nazi()
 	float u = 0.0;
     float v = 0.0;
     float w = 0.0;
+    float t = 0.0;
     switch ((int)frame)
 	{
 		case 0:
-			u = 0.33;
-			v = 0.0;
+			u = 8/12.0;
+			v = 7/12.0;
+			w = 1-0.0;
+			t = 1-1/19.0;
             break;
 		case 1:
-			u = 0.66; 
-			v = 0.34;
+			u = 8/12.0; 
+			v = 7/12.0;
+			w = 1-1/19.0;
+			t = 1-2/19.0;
 			break;
 		case 2:
-			u = 1.0;
-			v = 0.67;
+			u = 8/12.0;
+			v = 7/12.0;
+			w = 1-2/19.0;
+			t = 1-3/19.0;
 			break;
    }
 	glBindTexture(GL_TEXTURE_2D, texture);//A corriger
     glBegin(GL_QUADS);
-    glTexCoord2d(v,1);  glVertex3d(nazix + 1 * cos(angleZ), naziy - 1 * sin(angleZ),1);
-    glTexCoord2d(v,0);  glVertex3d(nazix + 1 * cos(angleZ), naziy + 1 * sin(angleZ),-1);
-    glTexCoord2d(u,0);  glVertex3d(nazix - 1 * cos(angleZ), naziy - 1 * sin(angleZ),-1);
-    glTexCoord2d(u,1);  glVertex3d(nazix - 1 * cos(angleZ), naziy + 1 * sin(angleZ),1);
+    glTexCoord2d(v,w);  glVertex3d(nazix+1*sin(angleZ+PI/2), naziy + 1*cos(angleZ+PI/2) ,2);
+    glTexCoord2d(v,t);  glVertex3d(nazix+1*sin(angleZ+PI/2), naziy + 1*cos(angleZ+PI/2) ,-1);
+    glTexCoord2d(u,t);  glVertex3d(nazix+1*sin(angleZ+PI/2), naziy - 1*cos(angleZ+PI/2) ,-1);
+    glTexCoord2d(u,w);  glVertex3d(nazix+1*sin(angleZ+PI/2), naziy - 1*cos(angleZ+PI/2) ,2);
     glEnd();
-    frame+=0.02;
+    frame+=0.07;
 	if (frame > 3)
 	{
 		frame = 0;
