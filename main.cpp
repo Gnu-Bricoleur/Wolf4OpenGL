@@ -20,7 +20,7 @@ GLuint fragmentshader;
 GLuint program;
 GLuint programID;
 
-
+float vie = 100;
 double angleZ = 0;
 double angleX = 0;
 double angleY = 0;
@@ -34,6 +34,7 @@ double positionX = 10;
 double positionY = 10;
 float distCollision = 0.1;
 int cpt = 0;
+int nbrMorts = 0;
 
 bool premierefois = true;
 int avancer = 0;
@@ -64,6 +65,8 @@ int nbrObjets = 0;
 int nbrEnnemis = 0;
 int nbrLampesR = 0;
 
+int essais = 0;
+
 struct coord{
 	double x = -100;
 	double y = -100;
@@ -86,6 +89,8 @@ double modulo( double angle );
 void nazi(float nazix, float naziy, int i);
 void objet(float posx, float posy, int type);
 
+char chaine1[100] = "Wolfenstein : il vous reste ", chaine2[50] = "% de Vie", chaine3[50] = "";
+char s[50] = "";
 
 int main(int argc, char *argv[])
 {
@@ -248,8 +253,12 @@ int main(int argc, char *argv[])
 							cout << sin(angleZ)<<endl;
 							if (/*abs(sin(angleEnnemis) - sin(angleZ)) < 0.34 && */dist < 7)//20°
 							{
+								if(ennemis[i].vivant == true)
+								{
 								ennemis[i].vivant = false;
 								cout << "mort"<<endl;
+								nbrMorts +=1;
+								}
 							}
 						}
 					} 
@@ -272,7 +281,35 @@ int main(int argc, char *argv[])
         {
             SDL_Delay(10 - ellapsed_time);
         }
-
+        
+		strcat(chaine1, "Wolfenstein : il vous reste ");
+		sprintf(s, "%f", vie);
+		strcat(chaine1, s);
+		strcat(chaine1, chaine2);
+		
+		
+		if (vie < 0)
+		{
+				positionX = 10;
+				positionY = 10;
+				vie = 100;
+				essais += 1;
+				strcat(chaine3, " essai n");
+				sprintf(s, "%f", essais);
+				strcat(chaine1, s);
+				
+		}
+		
+		if (nbrMorts == nbrEnnemis)
+		{
+			strcat(chaine1,  "Vous avez gagné !! Félicitation !!!");
+		}
+		
+		strcat(chaine1, chaine3);
+		SDL_WM_SetCaption(chaine1, NULL);
+		strcpy(chaine1, "");
+		strcpy(chaine2, "");
+		strcpy(chaine3, "");
     }
 
     return 0;
@@ -408,6 +445,15 @@ void Dessiner()
 		//positionX -= deplacement * sin(angleZ+ PI/2);
 		//positionY -= deplacement * cos(angleZ+ PI/2);
 	}
+	for (int i =0; i< nbrEnnemis; i++)
+	{
+		float dist = sqrt((ennemis[i].x - positionX)*(ennemis[i].x - positionX) + (ennemis[i].y - positionY)*(ennemis[i].y - positionY));
+		if (dist < 5 && ennemis[i].vivant == true)
+		{
+			vie -= 1;
+		}
+	}
+	
 	
 	collision = 0;
     gluLookAt(positionX,positionY,1,positionX + 0.1 * sin(angleZ),positionY + 0.1 * cos(angleZ) ,1,0,0,1);
@@ -429,7 +475,6 @@ void Dessiner()
 	
 	
 	Construction_niveau(); //Construit vertex en suivant de la carte chargé
-	
 	
 	
     glEnd();
