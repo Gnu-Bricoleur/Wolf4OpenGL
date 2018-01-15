@@ -1,3 +1,5 @@
 #"Clone" de Wolfenstein 3D en OpenGL
 
-Compile avec : g++ -o Wolf main.cpp -lSDL -lGL -lGLU
+Dans le dossier racine du jeu :
+Compile avec : make
+S'execute avec ./Wolf
