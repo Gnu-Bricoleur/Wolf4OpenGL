@@ -38,7 +38,7 @@ bool premierefois = true;
 int avancer = 0;
 int strafer = 0;
 float frame = 0;
-
+int etat_lampeRouge = 0;
 
 
 //textures
@@ -51,7 +51,10 @@ int ind_texture_Briue_Couronne = 4;// mur brique couronne
 int ind_texture_Bois = 5;// mur bois
 int ind_texture_Bois_tableau = 6;// mur bois tableau
 int ind_texture_Carrelage = 7;// carrelage
-
+int ind_obj_Poulet = 10;
+int ind_obj_Col = 9;
+int ind_obj_Squel = 11;
+int ind_obj_Table = 8;
 
 struct coord{
 	double x, y;
@@ -59,13 +62,10 @@ struct coord{
 	};
 	
 coord Murs[10000];
-
-struct ennemi{
-	double x, y;
-	int type;
-	};
-	
-ennemi ennemis[100];
+coord ennemis[100];
+coord objets[1000];
+coord Lampes[100];
+coord Lampes_rouge[100];
 
 void Cube(int x, int y, int z, int r, int g, int b, int ind_texture);
 void Chargement_niveau();
@@ -74,7 +74,7 @@ void Dessiner();
 void Construction_niveau();
 double modulo( double angle );
 void nazi(float nazix, float naziy);
-
+void objet(float posx, float posy, int type);
 
 
 int main(int argc, char *argv[])
@@ -548,6 +548,62 @@ void Chargement_niveau()
                                 Murs[indexlu].type = ind_texture_Drapeau;
                                 indexlu += 1;
 							}
+							else if (caractereActuel == 'b')
+                            {
+								Murs[indexlu].x = i;
+                                Murs[indexlu].y = j;
+                                Murs[indexlu].type = ind_texture_Bois;
+                                indexlu += 1;
+							}
+							else if (caractereActuel == 'a')
+                            {
+								Murs[indexlu].x = i;
+                                Murs[indexlu].y = j;
+                                Murs[indexlu].type = ind_texture_Bois_tableau;
+                                indexlu += 1;
+							}
+							else if (caractereActuel == 'c')
+                            {
+								Murs[indexlu].x = i;
+                                Murs[indexlu].y = j;
+                                Murs[indexlu].type = ind_texture_Brique;
+                                indexlu += 1;
+							}
+							else if (caractereActuel == 'w')
+                            {
+								Murs[indexlu].x = i;
+                                Murs[indexlu].y = j;
+                                Murs[indexlu].type = ind_texture_Briue_Couronne;
+                                indexlu += 1;
+							}
+							else if (caractereActuel == 'z')//table
+                            {
+								objets[indexlu].x = i;
+                                objets[indexlu].y = j;
+                                objets[indexlu].type = ind_obj_Table;
+                                indexlu += 1;
+							}
+							else if (caractereActuel == 'e')//colonne
+                            {
+								objets[indexlu].x = i;
+                                objets[indexlu].y = j;
+                                objets[indexlu].type = ind_obj_Col;
+                                indexlu += 1;
+							}
+							else if (caractereActuel == 'r')//poulet
+                            {
+								objets[indexlu].x = i;
+                                objets[indexlu].y = j;
+                                objets[indexlu].type = ind_obj_Poulet;
+                                indexlu += 1;
+							}
+							else if (caractereActuel == 'y')//squellette
+                            {
+								objets[indexlu].x = i;
+                                objets[indexlu].y = j;
+                                objets[indexlu].type = ind_obj_Squel;
+                                indexlu += 1;
+							}
                             else if (caractereActuel == 'n')
                             {
 								ennemis[indexennemis].x = i;
@@ -591,6 +647,7 @@ void Construction_niveau()
         }
 
     }
+    
     for (int i =0; i< 100; i++)
     {
 		nazi(ennemis[i].x, ennemis[i].y);
@@ -599,6 +656,11 @@ void Construction_niveau()
 	if (frame > 17)
 	{
 		frame = 0;
+	}
+	
+	for (int i =0; i< 1000; i++)
+    {
+		objet(objets[i].x, objets[i].y, objets[i].type);
 	}
 }
 
@@ -723,9 +785,61 @@ void nazi(float nazix, float naziy)
 	glBindTexture(GL_TEXTURE_2D, texture);//A corriger
     glBegin(GL_QUADS);
     glTexCoord2d(v,w);  glVertex3d(nazix+1*sin(angleZ+PI/2), naziy + 1*cos(angleZ+PI/2) ,2);
-    glTexCoord2d(v,t);  glVertex3d(nazix+1*sin(angleZ+PI/2), naziy + 1*cos(angleZ+PI/2) ,-1);
-    glTexCoord2d(u,t);  glVertex3d(nazix+1*sin(angleZ+PI/2), naziy - 1*cos(angleZ+PI/2) ,-1);
+    glTexCoord2d(v,t);  glVertex3d(nazix+1*sin(angleZ+PI/2), naziy + 1*cos(angleZ+PI/2) ,-0.5);
+    glTexCoord2d(u,t);  glVertex3d(nazix+1*sin(angleZ+PI/2), naziy - 1*cos(angleZ+PI/2) ,-0.5);
     glTexCoord2d(u,w);  glVertex3d(nazix+1*sin(angleZ+PI/2), naziy - 1*cos(angleZ+PI/2) ,2);
+    glEnd();
+   
+}
+
+
+
+
+void objet(float posx, float posy, int type)
+{
+	float u = 0.0;
+    float v = 0.0;
+    float w = 0.0;
+    float t = 0.0;
+    switch (type)
+	{
+		case 8:
+			u = 7/12.0;
+			v = 6/12.0;
+			w = 1-0.0;
+			t = 1-1/19.0;
+            break;
+		case 9:
+			u = 7/12.0; 
+			v = 6/12.0;
+			w = 1-1/19.0;
+			t = 1-2/19.0;
+			break;
+		case 10:
+			u = 7/12.0;
+			v = 6/12.0;
+			w = 1-2/19.0;
+			t = 1-3/19.0;
+			break;
+		case 20:
+			u = 7/12.0;
+			v = 6/12.0;
+			w = 1-3/19.0;
+			t = 1-4/19.0;
+			break;
+		case 11:
+			u = 7/12.0;
+			v = 6/12.0;
+			w = 1-4/19.0;
+			t = 1-5/19.0;
+			break;
+		}
+	glBindTexture(GL_TEXTURE_2D, texture);
+    glBegin(GL_QUADS);
+    glTexCoord2d(v,w);  glVertex3d(posx+1*sin(angleZ+PI/2), posy + 1*cos(angleZ+PI/2) ,2);
+    glTexCoord2d(v,t);  glVertex3d(posx+1*sin(angleZ+PI/2), posy + 1*cos(angleZ+PI/2) ,-0.5);
+    glTexCoord2d(u,t);  glVertex3d(posx+1*sin(angleZ+PI/2), posy - 1*cos(angleZ+PI/2) ,-0.5);
+    glTexCoord2d(u,w);  glVertex3d(posx+1*sin(angleZ+PI/2), posy - 1*cos(angleZ+PI/2) ,2);
     glEnd();
    
 }
