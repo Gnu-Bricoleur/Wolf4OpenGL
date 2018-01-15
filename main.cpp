@@ -68,7 +68,7 @@ struct coord{
 	double x = -100;
 	double y = -100;
 	int type;
-	bool vivant = true;
+	bool vivant;
 	};
 	
 coord Murs[10000];
@@ -83,7 +83,7 @@ void Chargement_niveau();
 void Dessiner();
 void Construction_niveau();
 double modulo( double angle );
-void nazi(float nazix, float naziy);
+void nazi(float nazix, float naziy, int i);
 void objet(float posx, float posy, int type);
 
 
@@ -234,6 +234,25 @@ int main(int argc, char *argv[])
 					//cout<<event.motion.xrel<<endl;
 										
 					break;
+				 case SDL_MOUSEBUTTONUP:
+					if (event.button.button == SDL_BUTTON_LEFT)
+					{
+						//################################################################################################################## FIX ME !!!!!!!!!!!!!!!!!!!
+						//positionX,positionY,1,positionX + 0.1 * sin(angleZ),positionY + 0.1 * cos(angleZ) ,1
+						for (int i = 0; i < nbrEnnemis; i++)
+						{
+							float angleEnnemis = atan((ennemis[i].x - deplacementX)/(ennemis[i].y - deplacementY));
+							float dist = sqrt((ennemis[i].x - positionX)*(ennemis[i].x - positionX) + (ennemis[i].y - positionY)*(ennemis[i].y - positionY));
+							cout << dist<<endl;
+							cout << sin(angleEnnemis)<<endl;
+							cout << sin(angleZ)<<endl;
+							if (/*abs(sin(angleEnnemis) - sin(angleZ)) < 0.34 && */dist < 7)//20°
+							{
+								ennemis[i].vivant = false;
+								cout << "mort"<<endl;
+							}
+						}
+					} 
             }
         }
 
@@ -294,8 +313,8 @@ void Dessiner()
 				if ((abs((positionY + deplacement * cos(angleZ)) - (Murs[i].y + 0.5)) < distCollision) || (abs((positionY + deplacement * cos(angleZ)) - (Murs[i].y - 0.5)) < distCollision))//si distance faible en y
 				{	
 					collision = 1;
-					cout<<Murs[i].x<<endl; //mur qui prvoque la collision
-					cout<<Murs[i].y<<endl;
+					//cout<<Murs[i].x<<endl; //mur qui prvoque la collision
+					//cout<<Murs[i].y<<endl;
 					break;
 				}
 			}
@@ -306,7 +325,7 @@ void Dessiner()
 			positionX += deplacement * sin(angleZ);
 			positionY += deplacement * cos(angleZ);
 		}
-		cout<<collision<<endl;	
+		//cout<<collision<<endl;	
 		
 		//positionX += deplacement * sin(angleZ);
 		//positionY += deplacement * cos(angleZ);
@@ -320,8 +339,8 @@ void Dessiner()
 				if ((abs((positionY - deplacement * cos(angleZ)) - (Murs[i].y + 0.5)) < distCollision) || (abs((positionY - deplacement * cos(angleZ)) - (Murs[i].y - 0.5)) < distCollision))//si distance faible en y
 				{	
 					collision = 1;
-					cout<<Murs[i].x<<endl; //mur qui prvoque la collision
-					cout<<Murs[i].y<<endl;
+					//cout<<Murs[i].x<<endl; //mur qui prvoque la collision
+					//cout<<Murs[i].y<<endl;
 					break;
 				}
 			}
@@ -346,8 +365,8 @@ void Dessiner()
 				if ((abs((positionY + deplacement * cos(angleZ + PI/2)) - (Murs[i].y + 0.5)) < distCollision) || (abs((positionY + deplacement * cos(angleZ + PI/2)) - (Murs[i].y - 0.5)) < distCollision))//si distance faible en y
 				{	
 					collision = 1;
-					cout<<Murs[i].x<<endl; //mur qui prvoque la collision
-					cout<<Murs[i].y<<endl;
+					//cout<<Murs[i].x<<endl; //mur qui prvoque la collision
+					//cout<<Murs[i].y<<endl;
 					break;
 				}
 			}
@@ -373,8 +392,8 @@ void Dessiner()
 				if ((abs((positionY - deplacement * cos(angleZ+ PI/2)) - (Murs[i].y + 0.5)) < 0.5) || (abs((positionY - deplacement * cos(angleZ+ PI/2)) - (Murs[i].y - 0.5)) < 0.5))//si distance faible en y
 				{	
 					collision = 1;
-					cout<<Murs[i].x<<endl; //mur qui prvoque la collision
-					cout<<Murs[i].y<<endl;
+					//cout<<Murs[i].x<<endl; //mur qui prvoque la collision
+					//cout<<Murs[i].y<<endl;
 					break;
 				}
 			}
@@ -514,7 +533,7 @@ void Cube(int x, int y, int z, int r, int g, int b, int ind_texture)
 			}
 		}
 	}
-	cout<<etat_lampeRouge<<endl;
+	//cout<<etat_lampeRouge<<endl;
     cpt += 1;
 	if (cpt == 200)
 	{
@@ -654,8 +673,8 @@ void Chargement_niveau()
                                 objets[index_Objets].type = ind_obj_Col;
                                 index_Objets += 1;
                                 nbrObjets +=1;
-                                cout << indexlu<<endl;
-                                cout << indexlu<<endl;
+                                // << indexlu<<endl;
+                                //cout << indexlu<<endl;
 							}
 							else if (caractereActuel == 'r')//poulet
                             {
@@ -677,6 +696,7 @@ void Chargement_niveau()
                             {
 								ennemis[indexennemis].x = i;
 								ennemis[indexennemis].y = j;
+								ennemis[indexennemis].vivant = true;
 								indexennemis += 1;
 								nbrEnnemis +=1;
 							}
@@ -736,7 +756,7 @@ void Construction_niveau()
     
     for (int i =0; i< nbrEnnemis; i++)
     {
-		nazi(ennemis[i].x, ennemis[i].y);
+		nazi(ennemis[i].x, ennemis[i].y, i);
 	}
     frame+=0.1;
 	if (frame > 17)
@@ -768,7 +788,7 @@ void Construction_niveau()
 }
 
 
-void nazi(float nazix, float naziy)
+void nazi(float nazix, float naziy, int i)
 {
 	float u = 0.0;
     float v = 0.0;
@@ -885,6 +905,8 @@ void nazi(float nazix, float naziy)
 			t = 1-18/19.0;
 			break;
    }
+   if (ennemis[i].vivant == true)
+   {
 	glBindTexture(GL_TEXTURE_2D, texture);//A corriger
     glBegin(GL_QUADS);
     glTexCoord2d(v,w);  glVertex3d(nazix+1*sin(angleZ+PI/2), naziy + 1*cos(angleZ+PI/2) ,2);
@@ -892,6 +914,22 @@ void nazi(float nazix, float naziy)
     glTexCoord2d(u,t);  glVertex3d(nazix+1*sin(angleZ+PI/2), naziy - 1*cos(angleZ+PI/2) ,-0.5);
     glTexCoord2d(u,w);  glVertex3d(nazix+1*sin(angleZ+PI/2), naziy - 1*cos(angleZ+PI/2) ,2);
     glEnd();
+   }
+   else
+   {
+	cout<<"tex"<<endl;
+	u = 8/12.0;
+	v = 7/12.0;
+	w = 1-0.0;
+	t = 1-1/19.0;
+	glBindTexture(GL_TEXTURE_2D, texture);
+    glBegin(GL_QUADS);
+    glTexCoord2d(v,w);  glVertex3d(nazix+0.5, naziy + 1 ,-0.4);
+    glTexCoord2d(v,t);  glVertex3d(nazix-2, naziy + 1 ,-0.4);
+    glTexCoord2d(u,t);  glVertex3d(nazix-2, naziy - 1 ,-0.4);
+    glTexCoord2d(u,w);  glVertex3d(nazix+0.5, naziy - 1 ,-0.4);
+    glEnd();
+	}
    
 }
 
