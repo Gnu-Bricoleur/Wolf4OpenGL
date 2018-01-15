@@ -401,6 +401,19 @@ void Dessiner()
 	
 	Construction_niveau(); //Construit vertex en suivant de la carte chargé
 	
+	float cross[4][4] = {
+		{-0.05, 0, 0, 13},
+		{+0.05, 0, 0, 13},
+		{0, -0.05, 0, 13},
+		{0, +0.05, 0, 13},
+	};
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof cross, cross, GL_DYNAMIC_DRAW);
+	//glVertexAttribPointer(attribute_coord, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glDrawArrays(GL_LINES, 0, 4);
+
+	
+	
     glEnd();
 
     glFlush();
