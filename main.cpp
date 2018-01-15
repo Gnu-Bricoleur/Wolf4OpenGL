@@ -46,7 +46,6 @@ GLuint texture;
 int ind_texture_Drapeau = 2;
 int ind_texture_Tableau = 1;
 int ind_texture_Mur = 0;
-int nazix, naziy;
 int ind_texture_Brique = 3;// mur brique
 int ind_texture_Briue_Couronne = 4;// mur brique couronne
 int ind_texture_Bois = 5;// mur bois
@@ -61,7 +60,12 @@ struct coord{
 	
 coord Murs[10000];
 
-
+struct ennemi{
+	double x, y;
+	int type;
+	};
+	
+ennemi ennemis[100];
 
 void Cube(int x, int y, int z, int r, int g, int b, int ind_texture);
 void Chargement_niveau();
@@ -69,7 +73,7 @@ void Chargement_niveau();
 void Dessiner();
 void Construction_niveau();
 double modulo( double angle );
-void nazi();
+void nazi(float nazix, float naziy);
 
 
 
@@ -511,7 +515,7 @@ void Chargement_niveau()
     // Chargement niveau
     FILE* fichier = NULL;
     int caractereActuel = 0;
-
+	int indexennemis = 0;
     fichier = fopen("map.lvl", "r");
     if(fichier != NULL)  // si l'ouverture a réussi
         {           
@@ -546,8 +550,9 @@ void Chargement_niveau()
 							}
                             else if (caractereActuel == 'n')
                             {
-								nazix = i;
-								naziy = j;
+								ennemis[indexennemis].x = i;
+								ennemis[indexennemis].y = j;
+								indexennemis += 1;
 							}
                         }
                 }
@@ -586,11 +591,19 @@ void Construction_niveau()
         }
 
     }
-    nazi();
+    for (int i =0; i< 100; i++)
+    {
+		nazi(ennemis[i].x, ennemis[i].y);
+	}
+    frame+=0.07;
+	if (frame > 17)
+	{
+		frame = 0;
+	}
 }
 
 
-void nazi()
+void nazi(float nazix, float naziy)
 {
 	float u = 0.0;
     float v = 0.0;
@@ -616,6 +629,96 @@ void nazi()
 			w = 1-2/19.0;
 			t = 1-3/19.0;
 			break;
+		case 3:
+			u = 8/12.0;
+			v = 7/12.0;
+			w = 1-3/19.0;
+			t = 1-4/19.0;
+			break;
+		case 4:
+			u = 8/12.0;
+			v = 7/12.0;
+			w = 1-4/19.0;
+			t = 1-5/19.0;
+			break;
+		case 5:
+			u = 8/12.0;
+			v = 7/12.0;
+			w = 1-5/19.0;
+			t = 1-6/19.0;
+			break;
+		case 6:
+			u = 8/12.0;
+			v = 7/12.0;
+			w = 1-6/19.0;
+			t = 1-7/19.0;
+			break;
+		case 7:
+			u = 8/12.0;
+			v = 7/12.0;
+			w = 1-7/19.0;
+			t = 1-8/19.0;
+			break;
+		case 8:
+			u = 8/12.0;
+			v = 7/12.0;
+			w = 1-8/19.0;
+			t = 1-9/19.0;
+			break;
+		case 9:
+			u = 8/12.0;
+			v = 7/12.0;
+			w = 1-9/19.0;
+			t = 1-10/19.0;
+			break;
+		case 10:
+			u = 8/12.0;
+			v = 7/12.0;
+			w = 1-10/19.0;
+			t = 1-11/19.0;
+			break;
+		case 11:
+			u = 8/12.0;
+			v = 7/12.0;
+			w = 1-11/19.0;
+			t = 1-12/19.0;
+			break;
+		case 12:
+			u = 8/12.0;
+			v = 7/12.0;
+			w = 1-12/19.0;
+			t = 1-13/19.0;
+			break;
+		case 13:
+			u = 8/12.0;
+			v = 7/12.0;
+			w = 1-13/19.0;
+			t = 1-14/19.0;
+			break;
+		case 14:
+			u = 8/12.0;
+			v = 7/12.0;
+			w = 1-14/19.0;
+			t = 1-15/19.0;
+			break;
+		case 15:
+			u = 8/12.0;
+			v = 7/12.0;
+			w = 1-15/19.0;
+			t = 1-16/19.0;
+			break;
+		case 16:
+			u = 8/12.0;
+			v = 7/12.0;
+			w = 1-16/19.0;
+			t = 1-17/19.0;
+			break;
+		case 17:
+			u = 8/12.0;
+			v = 7/12.0;
+			w = 1-17/19.0;
+			t = 1-18/19.0;
+			break;
    }
 	glBindTexture(GL_TEXTURE_2D, texture);//A corriger
     glBegin(GL_QUADS);
@@ -624,9 +727,5 @@ void nazi()
     glTexCoord2d(u,t);  glVertex3d(nazix+1*sin(angleZ+PI/2), naziy - 1*cos(angleZ+PI/2) ,-1);
     glTexCoord2d(u,w);  glVertex3d(nazix+1*sin(angleZ+PI/2), naziy - 1*cos(angleZ+PI/2) ,2);
     glEnd();
-    frame+=0.07;
-	if (frame > 3)
-	{
-		frame = 0;
-	}
+   
 }
