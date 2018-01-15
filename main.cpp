@@ -33,13 +33,15 @@ int largeur, hauteur;
 double positionX = 10;
 double positionY = 10;
 float distCollision = 0.1;
+int cpt = 0;
 
 bool premierefois = true;
 int avancer = 0;
 int strafer = 0;
 float frame = 0;
-int etat_lampeRouge = 0;
-
+float etat_lampeRouge = 0.0;
+static Uint32 temps_precedent = 0;
+Uint32 clignotement = 5;
 
 //textures
 GLuint texture;
@@ -56,9 +58,17 @@ int ind_obj_Col = 9;
 int ind_obj_Squel = 11;
 int ind_obj_Table = 8;
 
+int nbrMurs = 0;
+int nbrLampes = 0;
+int nbrObjets = 0;
+int nbrEnnemis = 0;
+int nbrLampesR = 0;
+
 struct coord{
-	double x, y;
+	double x = -100;
+	double y = -100;
 	int type;
+	bool vivant = true;
 	};
 	
 coord Murs[10000];
@@ -397,21 +407,10 @@ void Dessiner()
     glBegin(GL_QUADS);
     
     glUseProgram(programID); //active l'utilisation du shader (remettre cette fonctiona avec un autre shader pour changer en cours de dessin)
-
+	
 	
 	Construction_niveau(); //Construit vertex en suivant de la carte chargé
 	
-	float cross[4][4] = {
-		{-0.05, 0, 0, 13},
-		{+0.05, 0, 0, 13},
-		{0, -0.05, 0, 13},
-		{0, +0.05, 0, 13},
-	};
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof cross, cross, GL_DYNAMIC_DRAW);
-	//glVertexAttribPointer(attribute_coord, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	glDrawArrays(GL_LINES, 0, 4);
-
 	
 	
     glEnd();
@@ -426,6 +425,11 @@ void Cube(int x, int y, int z, int r, int g, int b, int ind_texture)
     //<<texture<<endl;
     //cout<<"    "<<endl;
     //GLuint text = 1;
+
+
+    int distance_Lumiuere = 5;
+    int distance_Lumiuere_R = 5;
+    
     float u = 0.0;
     float v = 0.0;
     float w = 0.0;
@@ -482,10 +486,48 @@ void Cube(int x, int y, int z, int r, int g, int b, int ind_texture)
 			break;
    }
 
+
+    
     glBindTexture(GL_TEXTURE_2D, texture);
 	glColor3ub(r, g, b);
-    glColor3ub(255,255,255);
-    //glDisable(GL_LIGHTING);
+	glColor3ub(128,128,128);
+	for(int i = 0 ; i < nbrLampes ; i++)
+	{
+		if((abs(x - Lampes[i].x) * abs(x - Lampes[i].x)) + ( abs(y - Lampes[i].y) * abs(y - Lampes[i].y)) < (distance_Lumiuere * distance_Lumiuere) )
+		{
+			glColor3ub(255,255,255);
+		}
+	}
+
+	for(int i = 0 ; i < nbrLampesR ; i++)
+	{
+		if((abs(x - Lampes_rouge[i].x) * abs(x - Lampes_rouge[i].x)) + ( abs(y - Lampes_rouge[i].y) * abs(y - Lampes_rouge[i].y)) < (distance_Lumiuere_R * distance_Lumiuere_R) )
+		{
+			//glColor3ub(255,128,128);
+			if( (int)etat_lampeRouge == 0 )
+			{
+				glColor3ub(255,128,128);
+			}
+			else if( (int)etat_lampeRouge == 1 )
+			{
+				glColor3ub(128,128,128);
+			}
+		}
+	}
+	cout<<etat_lampeRouge<<endl;
+    cpt += 1;
+	if (cpt == 200)
+	{
+		etat_lampeRouge = 1;
+		
+	}
+	if (cpt > 400)
+	{
+		etat_lampeRouge = 0;
+		cpt = 0;
+	}
+    
+    
 
     glTexCoord2d(v,t); glVertex3d(x+0.5, y+0.5, z+0.5);
     glTexCoord2d(v,w); glVertex3d(x+0.5, y+0.5, z-0.5);
@@ -517,9 +559,7 @@ void Cube(int x, int y, int z, int r, int g, int b, int ind_texture)
     glTexCoord2d(u,w);glVertex3d(x-0.5, y+0.5, z+0.5);
     glTexCoord2d(u,t); glVertex3d(x-0.5, y-0.5, z+0.5);
     //glDisable(GL_TEXTURE_2D);
-    
-    
-   
+     
 	
 }
 
@@ -529,6 +569,9 @@ void Chargement_niveau()
     FILE* fichier = NULL;
     int caractereActuel = 0;
 	int indexennemis = 0;
+	int index_Lampe = 0;
+    int index_Lampe_r = 0;
+    int index_Objets = 0;
     fichier = fopen("map.lvl", "r");
     if(fichier != NULL)  // si l'ouverture a réussi
         {           
@@ -546,6 +589,7 @@ void Chargement_niveau()
                                 Murs[indexlu].y = j;
                                 Murs[indexlu].type = ind_texture_Mur;
                                 indexlu += 1;
+                                nbrMurs +=1;
                             }
                             else if (caractereActuel == 't')
                             {
@@ -553,6 +597,7 @@ void Chargement_niveau()
                                 Murs[indexlu].y = j;
                                 Murs[indexlu].type = ind_texture_Tableau;
                                 indexlu += 1;
+                                nbrMurs +=1;
 							}
                             else if (caractereActuel == 'd')
                             {
@@ -560,6 +605,7 @@ void Chargement_niveau()
                                 Murs[indexlu].y = j;
                                 Murs[indexlu].type = ind_texture_Drapeau;
                                 indexlu += 1;
+                                nbrMurs +=1;
 							}
 							else if (caractereActuel == 'b')
                             {
@@ -567,6 +613,7 @@ void Chargement_niveau()
                                 Murs[indexlu].y = j;
                                 Murs[indexlu].type = ind_texture_Bois;
                                 indexlu += 1;
+                                nbrMurs +=1;
 							}
 							else if (caractereActuel == 'a')
                             {
@@ -574,6 +621,7 @@ void Chargement_niveau()
                                 Murs[indexlu].y = j;
                                 Murs[indexlu].type = ind_texture_Bois_tableau;
                                 indexlu += 1;
+                                nbrMurs +=1;
 							}
 							else if (caractereActuel == 'c')
                             {
@@ -581,6 +629,7 @@ void Chargement_niveau()
                                 Murs[indexlu].y = j;
                                 Murs[indexlu].type = ind_texture_Brique;
                                 indexlu += 1;
+                                nbrMurs +=1;
 							}
 							else if (caractereActuel == 'w')
                             {
@@ -588,40 +637,64 @@ void Chargement_niveau()
                                 Murs[indexlu].y = j;
                                 Murs[indexlu].type = ind_texture_Briue_Couronne;
                                 indexlu += 1;
+                                nbrMurs +=1;
 							}
 							else if (caractereActuel == 'z')//table
                             {
-								objets[indexlu].x = i;
-                                objets[indexlu].y = j;
-                                objets[indexlu].type = ind_obj_Table;
-                                indexlu += 1;
+								objets[index_Objets].x = i;
+                                objets[index_Objets].y = j;
+                                objets[index_Objets].type = ind_obj_Table;
+                                index_Objets += 1;
+                                nbrObjets +=1;
 							}
 							else if (caractereActuel == 'e')//colonne
                             {
-								objets[indexlu].x = i;
-                                objets[indexlu].y = j;
-                                objets[indexlu].type = ind_obj_Col;
-                                indexlu += 1;
+								objets[index_Objets].x = i;
+                                objets[index_Objets].y = j;
+                                objets[index_Objets].type = ind_obj_Col;
+                                index_Objets += 1;
+                                nbrObjets +=1;
+                                cout << indexlu<<endl;
+                                cout << indexlu<<endl;
 							}
 							else if (caractereActuel == 'r')//poulet
                             {
-								objets[indexlu].x = i;
-                                objets[indexlu].y = j;
-                                objets[indexlu].type = ind_obj_Poulet;
-                                indexlu += 1;
+								objets[index_Objets].x = i;
+                                objets[index_Objets].y = j;
+                                objets[index_Objets].type = ind_obj_Poulet;
+                                index_Objets += 1;
+                                nbrObjets +=1;
 							}
 							else if (caractereActuel == 'y')//squellette
                             {
-								objets[indexlu].x = i;
-                                objets[indexlu].y = j;
-                                objets[indexlu].type = ind_obj_Squel;
-                                indexlu += 1;
+								objets[index_Objets].x = i;
+                                objets[index_Objets].y = j;
+                                objets[index_Objets].type = ind_obj_Squel;
+                                index_Objets += 1;
+                                nbrObjets +=1;
 							}
                             else if (caractereActuel == 'n')
                             {
 								ennemis[indexennemis].x = i;
 								ennemis[indexennemis].y = j;
 								indexennemis += 1;
+								nbrEnnemis +=1;
+							}
+							else if (caractereActuel == 'l')
+                            {
+								Lampes[index_Lampe].x = i;
+								Lampes[index_Lampe].y = j;
+								index_Lampe +=1;
+								nbrLampes +=1;
+
+							}
+							else if (caractereActuel == 'g')
+                            {
+								Lampes_rouge[index_Lampe_r].x = i;
+								Lampes_rouge[index_Lampe_r].y = j;
+								index_Lampe_r +=1;
+								nbrLampesR +=1;
+
 							}
                         }
                 }
@@ -661,20 +734,37 @@ void Construction_niveau()
 
     }
     
-    for (int i =0; i< 100; i++)
+    for (int i =0; i< nbrEnnemis; i++)
     {
 		nazi(ennemis[i].x, ennemis[i].y);
 	}
-    frame+=0.07;
+    frame+=0.1;
 	if (frame > 17)
 	{
 		frame = 0;
 	}
 	
-	for (int i =0; i< 1000; i++)
+	for (int i =0; i< nbrObjets; i++)
     {
 		objet(objets[i].x, objets[i].y, objets[i].type);
 	}
+	/*
+	if (SDL_GetTicks() - temps_precedent > clignotement)
+	{
+		if (etat_lampeRouge == 1)
+		{
+			etat_lampeRouge = 0;
+		}
+		else
+		{
+			etat_lampeRouge = 1;
+		}
+		temps_precedent = SDL_GetTicks();
+		cout<<"yep"<<endl;
+	}
+	*/
+	
+
 }
 
 
@@ -849,10 +939,11 @@ void objet(float posx, float posy, int type)
 		}
 	glBindTexture(GL_TEXTURE_2D, texture);
     glBegin(GL_QUADS);
-    glTexCoord2d(v,w);  glVertex3d(posx+1*sin(angleZ+PI/2), posy + 1*cos(angleZ+PI/2) ,2);
-    glTexCoord2d(v,t);  glVertex3d(posx+1*sin(angleZ+PI/2), posy + 1*cos(angleZ+PI/2) ,-0.5);
-    glTexCoord2d(u,t);  glVertex3d(posx+1*sin(angleZ+PI/2), posy - 1*cos(angleZ+PI/2) ,-0.5);
-    glTexCoord2d(u,w);  glVertex3d(posx+1*sin(angleZ+PI/2), posy - 1*cos(angleZ+PI/2) ,2);
+    float angle = atan((positionX-posx)/(positionY-posy));
+    glTexCoord2d(v,w);  glVertex3d(posx+1*sin(PI/2-(angleZ-angle)), posy +1*cos(PI/2-(angleZ-angle)),2);
+    glTexCoord2d(v,t);  glVertex3d(posx+1*sin(PI/2-(angleZ-angle)), posy +1*cos(PI/2-(angleZ-angle)),-0.5);
+    glTexCoord2d(u,t);  glVertex3d(posx-1*sin(PI/2-(angleZ-angle)), posy -1*cos(PI/2-(angleZ-angle)),-0.5);
+    glTexCoord2d(u,w);  glVertex3d(posx-1*sin(PI/2-(angleZ-angle)), posy -1*cos(PI/2-(angleZ-angle)),2);
     glEnd();
    
 }
